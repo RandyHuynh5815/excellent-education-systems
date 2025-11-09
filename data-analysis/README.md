@@ -52,7 +52,8 @@ where
 - $S_y$ = Year of student's birth
 - $T_m$ = Month test was given
 - $S_m$ = Month of student's birth
-  AGE is then rounded to 2 decimal places.
+  
+AGE is then rounded to 2 decimal places.
 
 ### [HISCED - Highest level of education of parents](https://www.oecd.org/content/dam/oecd/en/publications/reports/2024/03/pisa-2022-technical-report_599753f0/01820d6d-en.pdf#page=389) (pg. 389)
 
