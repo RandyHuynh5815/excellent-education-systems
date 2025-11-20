@@ -1,0 +1,36 @@
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Jupyter Notebook output files (optional, depending on workflow)
+# To ignore all output in .ipynb files, consider using nbstripout or pre-commit hooks.
+# *.ipynb_checkpoints/
+# *.ipynb_checkpoints/*
+
+# Python specific files
+__pycache__/
+*.pyc
+*.o
+*.so
+
+# Environment files
+.env
+venv/
+env/
+
+# Data files (if not intended for version control)
+*.csv
+*.tsv
+*.xlsx
+*.parquet
+*.hdf5
+*.pkl
+
+# Log files
+*.log
+
+# Operating System specific files
+.DS_Store
+Thumbs.db
+
+# IDE specific files (e.g., VS Code)
+.vscode/
