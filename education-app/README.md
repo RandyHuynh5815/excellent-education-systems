@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Education Systems Explorer
 
-## Getting Started
+A classroom-themed interactive data visualization tool.
 
-First, run the development server:
+## Setup
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1.  Navigate to the project directory:
+    ```bash
+    cd education-app
+    ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2.  Install dependencies:
+    ```bash
+    npm install recharts lucide-react clsx tailwind-merge framer-motion
+    # Or if using pnpm
+    # pnpm install recharts lucide-react clsx tailwind-merge framer-motion
+    ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3.  Run the development server:
+    ```bash
+    npm run dev
+    ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4.  Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Learn More
+## Features
 
-To learn more about Next.js, take a look at the following resources:
+-   **Interactive Classroom**: Click on students to reveal questions.
+-   **Data Visualizations**: Dynamic charts on the whiteboard.
+-   **Filters**: Sidebar to filter data by Country and Subject.
+-   **Chalkboard Theme**: Custom styling for an immersive experience.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Architecture
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+-   **Framework**: Next.js 15+ (App Router)
+-   **Styling**: Tailwind CSS + Custom CSS Variables
+-   **Charts**: Recharts
+-   **Icons**: Lucide React
+-   **Animations**: Framer Motion
