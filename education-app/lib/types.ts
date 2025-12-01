@@ -19,10 +19,25 @@ export interface CountryData {
   region: string;
 }
 
+export interface ClockData {
+  country: string;
+  startTime: number[];
+  endTime: number[];
+  cramSchoolStartTime?: number;
+  cramSchoolEndTime?: number;
+}
+
+export interface HistogramData {
+  country: string;
+  BELONG: number | null;
+  BULLIED: number | null;
+  FEELSAFE: number | null;
+}
+
 export interface VisualizationData {
   questionId: string;
-  type: 'bar' | 'line' | 'scatter';
-  data: CountryData[];
+  type: 'bar' | 'line' | 'scatter' | 'clock' | 'histogram';
+  data: CountryData[] | ClockData[] | HistogramData[];
   xLabel: string;
   yLabel: string;
   title: string;
