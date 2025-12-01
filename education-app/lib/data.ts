@@ -6,21 +6,21 @@ export const STUDENTS: Student[] = [
     name: 'Alice',
     avatar: '/avatars/student1.svg',
     questionId: 'q1',
-    position: { top: '60%', left: '20%' },
+    position: { top: '88%', left: '25%' },
   },
   {
     id: 's2',
     name: 'Bob',
     avatar: '/avatars/student2.svg',
     questionId: 'q2',
-    position: { top: '50%', left: '50%' },
+    position: { top: '88%', left: '50%' },
   },
   {
     id: 's3',
     name: 'Charlie',
     avatar: '/avatars/student3.svg',
     questionId: 'q3',
-    position: { top: '65%', left: '80%' },
+    position: { top: '88%', left: '75%' },
   },
 ];
 

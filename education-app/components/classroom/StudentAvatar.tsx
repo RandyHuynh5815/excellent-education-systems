@@ -13,7 +13,7 @@ interface StudentAvatarProps {
 export function StudentAvatar({ student, isSelected, onClick }: StudentAvatarProps) {
   return (
     <motion.div
-      className="absolute cursor-pointer flex flex-col items-center group"
+      className="absolute cursor-pointer flex flex-col items-center group pointer-events-auto"
       style={{ top: student.position.top, left: student.position.left }}
       onClick={() => onClick(student)}
       whileHover={{ scale: 1.1, y: -5 }}
@@ -27,7 +27,7 @@ export function StudentAvatar({ student, isSelected, onClick }: StudentAvatarPro
         
         {/* Tooltip */}
         <div className="absolute bottom-full mb-2 hidden group-hover:block w-48 p-2 bg-black/80 text-white text-sm rounded pointer-events-none z-20">
-          <p className="text-center">"{student.name}"</p>
+          <p className="text-center">&ldquo;{student.name}&rdquo;</p>
           <p className="text-xs text-center text-gray-300">Has a question...</p>
         </div>
       </div>

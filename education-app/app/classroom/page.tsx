@@ -53,7 +53,7 @@ export default function ClassroomPage() {
       </div>
 
       {/* Whiteboard Area */}
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[60%] w-[800px] h-[500px] bg-[#1a261d] border-[16px] border-[#8d6e63] rounded-lg shadow-2xl z-10 flex flex-col overflow-hidden">
+      <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-[95%] max-w-[1400px] h-[75vh] bg-[#1a261d] border-[16px] border-[#8d6e63] rounded-lg shadow-2xl z-30 flex flex-col overflow-hidden pointer-events-auto">
         {/* Chalk tray */}
         <div className="absolute bottom-0 w-full h-4 bg-[#8d6e63] opacity-50"></div>
         <Whiteboard 
@@ -65,16 +65,14 @@ export default function ClassroomPage() {
 
       {/* Students */}
       <div className="absolute inset-0 z-20 pointer-events-none">
-        <div className="relative w-full h-full pointer-events-auto">
-          {STUDENTS.map(student => (
-            <StudentAvatar
-              key={student.id}
-              student={student}
-              isSelected={selectedStudent?.id === student.id}
-              onClick={handleStudentClick}
-            />
-          ))}
-        </div>
+        {STUDENTS.map(student => (
+          <StudentAvatar
+            key={student.id}
+            student={student}
+            isSelected={selectedStudent?.id === student.id}
+            onClick={handleStudentClick}
+          />
+        ))}
       </div>
 
       {/* Filter Panel */}
