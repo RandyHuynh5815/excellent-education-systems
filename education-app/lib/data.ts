@@ -120,7 +120,7 @@ export const VISUALIZATIONS: Record<string, VisualizationData> = {
     yLabel: '',
     data: [
       {
-        country: 'United States',
+        country: 'USA',
         startTime: [8],
         endTime: [15],
       },

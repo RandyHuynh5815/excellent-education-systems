@@ -45,18 +45,14 @@ export function HistogramChart({
   // Filter data to only include selected metrics and sort
   const chartData = useMemo(() => {
     const metricsSet = new Set(selectedMetrics);
+    // Include all metrics in data for sorting purposes
     let processed = filteredData.map((country) => {
-      const filtered: Record<string, any> = { country: country.country };
-      if (metricsSet.has("BELONG")) {
-        filtered.BELONG = country.BELONG;
-      }
-      if (metricsSet.has("BULLIED")) {
-        filtered.BULLIED = country.BULLIED;
-      }
-      if (metricsSet.has("FEELSAFE")) {
-        filtered.FEELSAFE = country.FEELSAFE;
-      }
-      return filtered;
+      return {
+        country: country.country,
+        BELONG: country.BELONG,
+        BULLIED: country.BULLIED,
+        FEELSAFE: country.FEELSAFE,
+      };
     });
 
     // Sort data based on selected metric
@@ -82,7 +78,20 @@ export function HistogramChart({
       });
     }
 
-    return processed;
+    // Now filter out metrics that aren't selected (after sorting)
+    return processed.map((item) => {
+      const filtered: Record<string, any> = { country: item.country };
+      if (metricsSet.has("BELONG")) {
+        filtered.BELONG = item.BELONG;
+      }
+      if (metricsSet.has("BULLIED")) {
+        filtered.BULLIED = item.BULLIED;
+      }
+      if (metricsSet.has("FEELSAFE")) {
+        filtered.FEELSAFE = item.FEELSAFE;
+      }
+      return filtered;
+    });
   }, [filteredData, selectedMetrics, sortBy, sortOrder]);
 
   if (filteredData.length === 0) {
@@ -110,10 +119,7 @@ export function HistogramChart({
                 strokeDasharray="3 3"
                 stroke="rgba(255,255,255,0.1)"
               />
-              <XAxis
-                type="number"
-                tick={{ fill: "#fcfcfc", fontSize: 10 }}
-              />
+              <XAxis type="number" tick={{ fill: "#fcfcfc", fontSize: 10 }} />
               <YAxis
                 type="category"
                 dataKey="country"
@@ -173,4 +179,3 @@ export function HistogramChart({
     </div>
   );
 }
-

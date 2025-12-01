@@ -67,6 +67,10 @@ export default function HistogramPage() {
       const newSet = new Set(prev);
       if (newSet.has(metric)) {
         newSet.delete(metric);
+        // If the currently sorted metric is being deselected, reset sort to "none"
+        if (sortBy === metric) {
+          setSortBy("none");
+        }
       } else {
         newSet.add(metric);
       }
@@ -74,19 +78,15 @@ export default function HistogramPage() {
     });
   };
 
-  // Filter data to only include selected metrics
-  let chartData = HISTOGRAM_DATA.map((country) => {
-    const filtered: Record<string, any> = { country: country.country };
-    if (selectedMetrics.has("BELONG")) {
-      filtered.BELONG = country.BELONG;
-    }
-    if (selectedMetrics.has("BULLIED")) {
-      filtered.BULLIED = country.BULLIED;
-    }
-    if (selectedMetrics.has("FEELSAFE")) {
-      filtered.FEELSAFE = country.FEELSAFE;
-    }
-    return filtered;
+  // Filter data to only include selected metrics and sort
+  // Include all metrics in data for sorting purposes
+  let processed = HISTOGRAM_DATA.map((country) => {
+    return {
+      country: country.country,
+      BELONG: country.BELONG,
+      BULLIED: country.BULLIED,
+      FEELSAFE: country.FEELSAFE,
+    };
   });
 
   // Sort data based on selected metric
@@ -94,7 +94,7 @@ export default function HistogramPage() {
     sortBy !== "none" &&
     (sortBy === "BELONG" || sortBy === "BULLIED" || sortBy === "FEELSAFE")
   ) {
-    chartData = [...chartData].sort((a, b) => {
+    processed = [...processed].sort((a, b) => {
       const aValue = a[sortBy];
       const bValue = b[sortBy];
 
@@ -111,6 +111,21 @@ export default function HistogramPage() {
       }
     });
   }
+
+  // Now filter out metrics that aren't selected (after sorting)
+  const chartData = processed.map((item) => {
+    const filtered: Record<string, any> = { country: item.country };
+    if (selectedMetrics.has("BELONG")) {
+      filtered.BELONG = item.BELONG;
+    }
+    if (selectedMetrics.has("BULLIED")) {
+      filtered.BULLIED = item.BULLIED;
+    }
+    if (selectedMetrics.has("FEELSAFE")) {
+      filtered.FEELSAFE = item.FEELSAFE;
+    }
+    return filtered;
+  });
 
   const colors = {
     BELONG: "#81d4fa", // chalk-blue
@@ -181,9 +196,15 @@ export default function HistogramPage() {
                 className="ml-2 px-3 py-1.5 bg-black/40 border border-white/20 rounded text-chalk-white text-sm focus:outline-none focus:border-chalk-blue cursor-pointer"
               >
                 <option value="none">None</option>
-                <option value="BELONG">BELONG</option>
-                <option value="BULLIED">BULLIED</option>
-                <option value="FEELSAFE">FEELSAFE</option>
+                {selectedMetrics.has("BELONG") && (
+                  <option value="BELONG">BELONG</option>
+                )}
+                {selectedMetrics.has("BULLIED") && (
+                  <option value="BULLIED">BULLIED</option>
+                )}
+                {selectedMetrics.has("FEELSAFE") && (
+                  <option value="FEELSAFE">FEELSAFE</option>
+                )}
               </select>
             </label>
             {sortBy !== "none" && (

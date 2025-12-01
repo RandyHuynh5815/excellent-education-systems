@@ -145,9 +145,15 @@ export function FilterPanel({
                     className="w-full px-3 py-2 bg-black/40 border border-white/20 rounded text-chalk-white text-sm focus:outline-none focus:border-chalk-blue cursor-pointer"
                   >
                     <option value="none">None</option>
-                    <option value="BELONG">BELONG</option>
-                    <option value="BULLIED">BULLIED</option>
-                    <option value="FEELSAFE">FEELSAFE</option>
+                    {selectedMetrics.includes("BELONG") && (
+                      <option value="BELONG">BELONG</option>
+                    )}
+                    {selectedMetrics.includes("BULLIED") && (
+                      <option value="BULLIED">BULLIED</option>
+                    )}
+                    {selectedMetrics.includes("FEELSAFE") && (
+                      <option value="FEELSAFE">FEELSAFE</option>
+                    )}
                   </select>
                 </div>
                 {histogramSortBy !== 'none' && (

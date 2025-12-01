@@ -51,7 +51,12 @@ export default function ClassroomPage() {
 
   const handleMetricToggle = (metric: string) => {
     if (selectedMetrics.includes(metric)) {
-      setSelectedMetrics(selectedMetrics.filter((m) => m !== metric));
+      const newMetrics = selectedMetrics.filter((m) => m !== metric);
+      setSelectedMetrics(newMetrics);
+      // If the currently sorted metric is being deselected, reset sort to "none"
+      if (histogramSortBy === metric) {
+        setHistogramSortBy("none");
+      }
     } else {
       setSelectedMetrics([...selectedMetrics, metric]);
     }
