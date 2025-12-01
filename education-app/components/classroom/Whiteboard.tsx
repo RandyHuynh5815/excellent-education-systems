@@ -1,7 +1,7 @@
 'use client';
 
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
   ScatterChart, Scatter, ZAxis, Cell
 } from 'recharts';
 import { VisualizationData, Question } from '@/lib/types';
@@ -13,11 +13,17 @@ interface WhiteboardProps {
   filteredCountries: string[];
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{ name?: string; value?: number | string; payload?: { country?: string } }>;
+  label?: string;
+}
+
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+  if (active && payload && payload.length && payload[0]) {
     return (
       <div className="bg-black/80 border border-chalk-white p-3 rounded shadow-lg">
-        <p className="text-chalk-white font-bold">{label || payload[0].payload.country}</p>
+        <p className="text-chalk-white font-bold">{label || payload[0].payload?.country}</p>
         <p className="text-chalk-yellow">
           {payload[0].name || 'Value'}: {payload[0].value}
         </p>
