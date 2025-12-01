@@ -10,10 +10,25 @@ interface FilterPanelProps {
   onCountryChange: (country: string) => void;
   selectedSubject: string;
   onSubjectChange: (subject: string) => void;
+  // Histogram-specific filters
+  showHistogramFilters?: boolean;
+  selectedMetrics?: string[];
+  onMetricToggle?: (metric: string) => void;
+  histogramSortBy?: string;
+  onHistogramSortByChange?: (sortBy: string) => void;
+  histogramSortOrder?: 'asc' | 'desc';
+  onHistogramSortOrderChange?: (order: 'asc' | 'desc') => void;
 }
 
-const COUNTRIES = ['Finland', 'USA', 'Japan', 'Korea', 'Brazil', 'Singapore', 'Canada', 'France', 'Italy', 'UK', 'Jordan'];
+const COUNTRIES = ['Finland', 'USA', 'Japan', 'Korea', 'Brazil', 'Singapore', 'Cambodia', 'Canada', 'France', 'Italy', 'UK', 'Jordan'];
 const SUBJECTS = ['Math', 'Reading', 'Science', 'General'];
+const HISTOGRAM_METRICS = ['BELONG', 'BULLIED', 'FEELSAFE'];
+
+const histogramColors = {
+  BELONG: "#81d4fa", // chalk-blue
+  BULLIED: "#ef9a9a", // chalk-red
+  FEELSAFE: "#fff59d", // chalk-yellow
+};
 
 export function FilterPanel({ 
   isOpen, 
@@ -21,7 +36,14 @@ export function FilterPanel({
   selectedCountries, 
   onCountryChange,
   selectedSubject,
-  onSubjectChange
+  onSubjectChange,
+  showHistogramFilters = false,
+  selectedMetrics = [],
+  onMetricToggle,
+  histogramSortBy = 'none',
+  onHistogramSortByChange,
+  histogramSortOrder = 'asc',
+  onHistogramSortOrderChange
 }: FilterPanelProps) {
   return (
     <>
@@ -78,6 +100,81 @@ export function FilterPanel({
             ))}
           </div>
         </div>
+
+        {/* Histogram-specific filters */}
+        {showHistogramFilters && (
+          <>
+            <div className="mb-8 border-t border-white/20 pt-6">
+              <h3 className="text-xl text-chalk-blue mb-4">Metrics</h3>
+              <div className="flex flex-wrap gap-2">
+                {HISTOGRAM_METRICS.map(metric => (
+                  <button
+                    key={metric}
+                    onClick={() => onMetricToggle?.(metric)}
+                    className={`
+                      px-3 py-1 rounded border-2 transition-colors text-sm
+                      ${selectedMetrics.includes(metric)
+                        ? 'text-black border-current' 
+                        : 'bg-transparent text-chalk-white border-chalk-white/30 hover:border-current'}
+                    `}
+                    style={{
+                      borderColor: selectedMetrics.includes(metric)
+                        ? histogramColors[metric as keyof typeof histogramColors]
+                        : undefined,
+                      backgroundColor: selectedMetrics.includes(metric)
+                        ? `${histogramColors[metric as keyof typeof histogramColors]}`
+                        : undefined,
+                    }}
+                  >
+                    {metric}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mb-8 border-t border-white/20 pt-6">
+              <h3 className="text-xl text-chalk-red mb-4">Sort</h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-chalk-white text-sm mb-2 block">
+                    Sort by:
+                  </label>
+                  <select
+                    value={histogramSortBy}
+                    onChange={(e) => onHistogramSortByChange?.(e.target.value)}
+                    className="w-full px-3 py-2 bg-black/40 border border-white/20 rounded text-chalk-white text-sm focus:outline-none focus:border-chalk-blue cursor-pointer"
+                  >
+                    <option value="none">None</option>
+                    {selectedMetrics.includes("BELONG") && (
+                      <option value="BELONG">BELONG</option>
+                    )}
+                    {selectedMetrics.includes("BULLIED") && (
+                      <option value="BULLIED">BULLIED</option>
+                    )}
+                    {selectedMetrics.includes("FEELSAFE") && (
+                      <option value="FEELSAFE">FEELSAFE</option>
+                    )}
+                  </select>
+                </div>
+                {histogramSortBy !== 'none' && (
+                  <div>
+                    <label className="text-chalk-white text-sm mb-2 block">
+                      Order:
+                    </label>
+                    <select
+                      value={histogramSortOrder}
+                      onChange={(e) => onHistogramSortOrderChange?.(e.target.value as 'asc' | 'desc')}
+                      className="w-full px-3 py-2 bg-black/40 border border-white/20 rounded text-chalk-white text-sm focus:outline-none focus:border-chalk-blue cursor-pointer"
+                    >
+                      <option value="asc">Ascending</option>
+                      <option value="desc">Descending</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {!isOpen && (
