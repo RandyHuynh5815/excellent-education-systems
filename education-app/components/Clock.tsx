@@ -194,7 +194,7 @@ export default function Clock({
       {title && (
         <h3
           className="font-semibold mb-4 text-chalk-white text-center"
-          style={{ fontSize: `${size * 0.07}px` }}
+          style={{ fontSize: `${size * 0.09}px` }}
         >
           {title}
         </h3>
@@ -253,7 +253,7 @@ export default function Clock({
               textAnchor="middle"
               dominantBaseline="middle"
               fill="#fcfcfc"
-              fontSize={size * 0.06}
+              fontSize={size * 0.08}
               fontWeight="600"
               opacity="0.8"
             >
@@ -335,7 +335,7 @@ export default function Clock({
       {/* Legend */}
       <div
         className="mt-4 flex flex-wrap items-center justify-center gap-4"
-        style={{ fontSize: `${size * 0.04}px` }}
+        style={{ fontSize: `${size * 0.07}px` }}
       >
         <div className="flex items-center gap-2">
           <div

@@ -28,7 +28,12 @@ export default function ClassroomPage() {
   );
 
   const handleStudentClick = (student: Student) => {
-    setSelectedStudent(student);
+    // Toggle selection: if clicking the same student, unselect them
+    if (selectedStudent?.id === student.id) {
+      setSelectedStudent(null);
+    } else {
+      setSelectedStudent(student);
+    }
   };
 
   const handleCountryToggle = (country: string) => {
@@ -92,7 +97,7 @@ export default function ClassroomPage() {
       </div>
 
       {/* Students */}
-      <div className="absolute inset-0 z-20 pointer-events-none">
+      <div className="absolute inset-0 z-40 pointer-events-none">
         {STUDENTS.map((student) => (
           <StudentAvatar
             key={student.id}
