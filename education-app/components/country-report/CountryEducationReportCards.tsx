@@ -87,13 +87,13 @@ export default function CountryEducationReportCards() {
   }, [submissions]);
 
   return (
-    <div className="max-w-7xl mx-auto p-8 font-sans text-chalk-white">
+    <div className="max-w-7xl mx-auto p-8 text-chalk-white" style={{ fontFamily: '"Patrick Hand", "Comic Sans MS", cursive', fontSize: '1.25rem' }}>
       {/* Header */}
       <div className="text-center mb-12">
-        <h1 className="text-5xl font-handwriting text-chalk-yellow mb-4">
+        <h1 className="text-6xl text-chalk-yellow mb-4">
           Global Education Report Cards
         </h1>
-        <p className="text-xl max-w-2xl mx-auto text-chalk-white/80">
+        <p className="text-2xl max-w-3xl mx-auto text-chalk-white/80">
           Explore the report cards below. Based on the data, which country do you think has the 
           <span className="font-bold text-chalk-blue"> strongest</span> and 
           <span className="font-bold text-chalk-red"> weakest</span> overall education profile?
@@ -109,20 +109,20 @@ export default function CountryEducationReportCards() {
 
       {/* Guessing Section */}
       <div className="bg-black/20 backdrop-blur-sm border-2 border-white/10 rounded-xl p-8 max-w-4xl mx-auto">
-        <h2 className="text-3xl font-handwriting text-center mb-8">
+        <h2 className="text-4xl text-center mb-8">
           Your Opinion: Who is Best and Lowest?
         </h2>
 
         <div className="flex flex-col md:flex-row gap-8 justify-center items-center mb-8">
           <div className="flex flex-col gap-2 w-full max-w-xs">
-            <label className="font-bold text-chalk-blue">Best Overall System</label>
+            <label className="font-bold text-chalk-blue text-xl">Best Overall System</label>
             <select 
               value={bestGuess}
               onChange={(e) => {
                 setBestGuess(e.target.value);
                 setSubmitted(false);
               }}
-              className="bg-white/10 border border-white/30 rounded p-3 text-chalk-white focus:outline-none focus:border-chalk-blue"
+              className="bg-white/10 border border-white/30 rounded p-3 text-chalk-white focus:outline-none focus:border-chalk-blue text-lg"
               disabled={submitted}
             >
               <option value="" className="text-black">-- Select Country --</option>
@@ -133,14 +133,14 @@ export default function CountryEducationReportCards() {
           </div>
 
           <div className="flex flex-col gap-2 w-full max-w-xs">
-            <label className="font-bold text-chalk-red">Lowest Overall System</label>
+            <label className="font-bold text-chalk-red text-xl">Lowest Overall System</label>
             <select 
               value={lowestGuess}
               onChange={(e) => {
                 setLowestGuess(e.target.value);
                 setSubmitted(false);
               }}
-              className="bg-white/10 border border-white/30 rounded p-3 text-chalk-white focus:outline-none focus:border-chalk-red"
+              className="bg-white/10 border border-white/30 rounded p-3 text-chalk-white focus:outline-none focus:border-chalk-red text-lg"
               disabled={submitted}
             >
               <option value="" className="text-black">-- Select Country --</option>
@@ -152,7 +152,7 @@ export default function CountryEducationReportCards() {
         </div>
 
         {bestGuess === lowestGuess && bestGuess !== "" && (
-          <p className="text-center text-chalk-red mb-4">
+          <p className="text-center text-chalk-red mb-4 text-xl">
             Please choose different countries for best and lowest.
           </p>
         )}
@@ -162,7 +162,7 @@ export default function CountryEducationReportCards() {
             onClick={handleSubmit}
             disabled={!bestGuess || !lowestGuess || bestGuess === lowestGuess || submitted}
             variant="secondary"
-            className="text-xl px-12 py-3"
+            className="text-2xl px-12 py-3"
           >
             {submitted ? 'Opinion Submitted' : 'Submit Opinion'}
           </Button>
@@ -173,12 +173,12 @@ export default function CountryEducationReportCards() {
       {submitted && (
         <div id="feedback-section" className="mt-12 space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
           
-          {/* Community Votes Chart */}
+            {/* Community Votes Chart */}
           <div className="max-w-5xl mx-auto bg-[#1a261d] p-8 rounded-xl border-2 border-white/10 shadow-2xl">
-            <h3 className="text-3xl font-handwriting text-center mb-8 text-chalk-white">
+            <h3 className="text-4xl text-center mb-8 text-chalk-white">
               Community Consensus
             </h3>
-            <p className="text-center mb-8 text-chalk-white/60">
+            <p className="text-center mb-8 text-chalk-white/60 text-xl">
               See how others voted for Best and Lowest systems ({submissions.length} votes).
             </p>
             
@@ -201,8 +201,8 @@ export default function CountryEducationReportCards() {
 
             {/* Votes Table */}
             <div className="overflow-x-auto">
-              <h4 className="text-2xl font-handwriting mb-4 text-chalk-white/80">All Votes So Far</h4>
-              <table className="w-full text-left border-collapse">
+              <h4 className="text-3xl mb-4 text-chalk-white/80">All Votes So Far</h4>
+              <table className="w-full text-left border-collapse text-xl">
                 <thead>
                   <tr className="border-b border-white/20 text-chalk-yellow">
                     <th className="p-3 font-bold">Timestamp</th>
@@ -216,7 +216,7 @@ export default function CountryEducationReportCards() {
                     const countryWorst = COUNTRY_STATS.find(c => c.id === sub.worstCountry);
                     return (
                       <tr key={sub.id} className="hover:bg-white/5">
-                        <td className="p-3 text-sm text-chalk-white/60">
+                        <td className="p-3 text-lg text-chalk-white/60">
                           {new Date(sub.timestamp).toLocaleString()}
                         </td>
                         <td className="p-3 font-bold text-chalk-blue">
