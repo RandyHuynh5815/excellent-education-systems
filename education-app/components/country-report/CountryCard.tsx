@@ -5,6 +5,15 @@ interface CountryCardProps {
   country: CountryEducationStats;
 }
 
+// Convert country name to flag filename (lowercase, spaces to hyphens)
+function getCountryFlagPath(country: string): string {
+  const filename = country
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
+  return `/flags/${filename}.png`;
+}
+
 const TOOLTIPS: Record<string, string> = {
   "Math Score": "Average score on the PISA mathematics assessment (mean ~500).",
   "Socio-Econ Status (ESCS)": "Index of Economic, Social and Cultural Status. Higher values indicate higher socioeconomic background.",
@@ -20,12 +29,21 @@ export function CountryCard({ country }: CountryCardProps) {
     return Math.max(0, Math.min(100, pct));
   };
 
+  // Calculate bar color based on width (0-100) - red to green gradient
+  const getBarColor = (widthPercent: number): string => {
+    // Hue: 0 = red, 120 = green
+    // Map width (0-100) to hue (0-120)
+    const hue = (widthPercent / 100) * 120;
+    return `hsl(${hue}, 70%, 45%)`;
+  };
+
   const Indicator = ({ label, value, min, max, reverse = false, displayValue }: any) => {
-    const width = getBarWidth(value, min, max);
-    let colorClass = "bg-chalk-blue";
+    let width = getBarWidth(value, min, max);
     if (reverse) {
-      colorClass = "bg-chalk-red";
+      width = 100 - width; // Invert: higher value = shorter bar
     }
+
+    const barColor = getBarColor(width);
 
     return (
       <div className="mb-2 text-sm group relative">
@@ -44,8 +62,8 @@ export function CountryCard({ country }: CountryCardProps) {
         </div>
         <div className="h-3 w-full bg-black/10 rounded-full overflow-hidden">
           <div
-            className={`h-full ${colorClass} transition-all duration-500`}
-            style={{ width: `${width}%` }}
+            className="h-full transition-all duration-500"
+            style={{ width: `${width}%`, backgroundColor: barColor }}
           />
         </div>
       </div>
@@ -53,8 +71,20 @@ export function CountryCard({ country }: CountryCardProps) {
   };
 
   return (
-    <div className="bg-[#fffef5] text-black p-6 rounded-lg shadow-lg border-4 border-wood-frame rotate-1 hover:rotate-0 transition-transform duration-300">
-      <h3 className="text-2xl font-bold font-handwriting mb-4 border-b-2 border-black/10 pb-2">
+    <div className="bg-[#fffef5] text-black p-6 rounded-lg shadow-lg border-4 border-wood-frame rotate-1 hover:rotate-0 transition-transform duration-300 relative">
+      {/* Country Flag - Top Right */}
+      <div className="absolute top-3 right-3 w-12 h-12 rounded shadow-md overflow-hidden border border-black/10">
+        <img
+          src={getCountryFlagPath(country.name)}
+          alt={`${country.name} flag`}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            (e.target as HTMLImageElement).parentElement!.style.display = 'none';
+          }}
+        />
+      </div>
+
+      <h3 className="text-2xl font-bold font-handwriting mb-4 border-b-2 border-black/10 pb-2 pr-14">
         {country.name}
       </h3>
 
