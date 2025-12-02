@@ -43,3 +43,9 @@ export interface VisualizationData {
   title: string;
 }
 
+export interface OpinionSubmission {
+  id: string;
+  timestamp: string;
+  bestCountry: string;
+  worstCountry: string;
+}
