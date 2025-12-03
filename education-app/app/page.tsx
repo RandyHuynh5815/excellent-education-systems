@@ -201,6 +201,7 @@ export default function Home() {
   const [isErasing, setIsErasing] = useState(false);
   const [showNewText, setShowNewText] = useState(false);
   const [typingComplete, setTypingComplete] = useState(false);
+  const [firstTextComplete, setFirstTextComplete] = useState(false);
   const router = useRouter();
 
   const handleNext = () => {
@@ -259,7 +260,11 @@ export default function Home() {
                 {(step === 1 || isErasing) && (
                   <div className="relative overflow-hidden">
                     <p className="text-lg md:text-xl lg:text-2xl text-chalk-white/90 font-light leading-relaxed">
-                      {text1}
+                      <HandwrittenParagraph 
+                        text={text1} 
+                        onComplete={() => setFirstTextComplete(true)}
+                        duration={2}
+                      />
                     </p>
                     
                     {/* Eraser overlay that wipes from left to right */}
@@ -308,14 +313,20 @@ export default function Home() {
               </div>
               
               {/* Buttons */}
-              {step === 1 && (
-                <Button 
-                  variant="secondary" 
-                  className="text-lg md:text-xl lg:text-2xl px-6 md:px-8 py-3 md:py-4"
-                  onClick={handleNext}
+              {step === 1 && firstTextComplete && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  Next
-                </Button>
+                  <Button 
+                    variant="secondary" 
+                    className="text-lg md:text-xl lg:text-2xl px-6 md:px-8 py-3 md:py-4"
+                    onClick={handleNext}
+                  >
+                    Next
+                  </Button>
+                </motion.div>
               )}
               
               {showNewText && typingComplete && (
