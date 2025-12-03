@@ -1,57 +1,5 @@
 "use client";
 
-/**
- * =============================================================================
- * SOCIOECONOMIC VISUALIZATION COMPONENT
- * =============================================================================
- * 
- * PURPOSE:
- * This visualization explores "Family Background: The Resources Students Bring to School"
- * It compares socioeconomic origins and parental educational/economic status across
- * 6 countries (USA, Japan, Finland, Singapore, Brazil, Cambodia) and demonstrates
- * how these resources impact educational outcomes (specifically Math scores).
- * 
- * WHY THIS VISUALIZATION:
- * 1. Interactive World Map - Allows users to select and compare up to 3 countries
- *    at a time, making cross-country comparisons intuitive and engaging.
- * 
- * 2. Grouped Bar Chart (ESCS vs Math) - Shows the relationship between socioeconomic
- *    status and academic performance. Students are split into Low ESCS (Q1) and High ESCS (Q4)
- *    groups to clearly demonstrate the "resource gap" in education outcomes.
- * 
- * KEY INDICATORS (from PISA 2022):
- * - ESCS: Economic, Social and Cultural Status index (composite measure)
- * - HISCED: Highest level of parental education (ISCED scale 0-8)
- * - HISEI: Highest parental occupational status (international index)
- * - Math: PISA Mathematics score (used to show resource impact on education)
- * 
- * DATA SOURCE & CLEANING:
- * - Source: PISA 2022 student_subset_cleaned.csv
- * - Cleaning process:
- *   1. Filtered to 6 target countries: USA, Japan, Finland, Singapore, Brazil, Cambodia
- *   2. Removed rows with missing ESCS, HISCED, HISEI, or Math values
- *   3. Calculated country-level averages for each indicator
- *   4. Split students into quartiles by ESCS per country
- *   5. Low ESCS Math = average Math score of bottom 25% (Q1) students
- *   6. High ESCS Math = average Math score of top 25% (Q4) students
- * 
- * - Sample sizes after cleaning:
- *   Brazil: 10,334 students | Cambodia: 5,274 students | Finland: 9,931 students
- *   Japan: 5,689 students | Singapore: 6,559 students | USA: 4,342 students
- * 
- * KEY FINDINGS:
- * - Higher ESCS consistently correlates with higher Math scores across all countries
- * - The "resource gap" (difference between Low/High ESCS Math scores) varies by country:
- *   * Singapore: 114 pts (highest inequality)
- *   * USA: 101 pts
- *   * Finland: 92 pts
- *   * Japan: 84 pts
- *   * Brazil: 77 pts
- *   * Cambodia: 15 pts (lowest inequality, but overall lowest scores)
- * - Developed countries (Finland, Japan, Singapore) show higher baseline scores
- * - Developing countries (Brazil, Cambodia) show lower overall performance
- * =============================================================================
- */
 
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
