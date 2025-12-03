@@ -26,10 +26,24 @@ export interface HistogramData {
   FEELSAFE: number | null;
 }
 
+export interface SocioeconomicBin {
+  binStart: number;
+  binEnd: number;
+  count: number;
+}
+
+export interface SocioeconomicData {
+  country: string;
+  ESCS: number | null;
+  HISCED: number | null;
+  HISEI: number | null;
+  escsDistribution: SocioeconomicBin[];
+}
+
 export interface VisualizationData {
   questionId: string;
-  type: 'bar' | 'line' | 'scatter' | 'clock' | 'histogram';
-  data: CountryData[] | ClockData[] | HistogramData[];
+  type: 'bar' | 'line' | 'scatter' | 'clock' | 'histogram' | 'socioeconomic';
+  data: CountryData[] | ClockData[] | HistogramData[] | SocioeconomicData[];
   xLabel: string;
   yLabel: string;
   title: string;

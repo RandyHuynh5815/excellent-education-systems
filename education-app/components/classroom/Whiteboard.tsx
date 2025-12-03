@@ -14,17 +14,18 @@ import {
   ZAxis,
   Cell,
 } from "recharts";
-import { ClockData, HistogramData } from "@/lib/types";
+import { ClockData, HistogramData, SocioeconomicData } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { SpiderRadarChart } from "./SpiderRadarChart";
 import { SlideDeck } from "./SlideDeck";
-import { Radar, BookOpen, BarChart3, Clock as ClockIcon } from "lucide-react";
+import { Radar, BookOpen, BarChart3, Clock as ClockIcon, Users } from "lucide-react";
 import Clock from "@/components/Clock";
 import { HistogramChart } from "./HistogramChart";
 import { ClockChart } from "./ClockChart";
+import { SocioeconomicChart } from "./SocioeconomicChart";
 import { VISUALIZATIONS } from "@/lib/data";
 
-type ViewMode = "spider" | "clock" | "histogram" | "slides";
+type ViewMode = "spider" | "clock" | "histogram" | "socioeconomic" | "slides";
 
 interface WhiteboardProps {
   filteredCountries: string[];
@@ -70,34 +71,35 @@ export function Whiteboard({
 
   const clockData = (VISUALIZATIONS["q4"]?.data as ClockData[]) || [];
   const histogramData = (VISUALIZATIONS["q5"]?.data as HistogramData[]) || [];
+  const socioeconomicData = (VISUALIZATIONS["q6"]?.data as SocioeconomicData[]) || [];
 
-  return (
-    <div className="w-full h-full flex flex-col">
-      {/* Navigation Tabs */}
-      <div className="flex gap-2 p-4 border-b-2 border-chalk-white/20">
-        <button
+    return (
+      <div className="w-full h-full flex flex-col">
+        {/* Navigation Tabs */}
+        <div className="flex gap-2 p-4 border-b-2 border-chalk-white/20">
+          <button
           onClick={() => setViewMode("spider")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-            viewMode === "spider"
-              ? "bg-chalk-yellow text-black font-semibold"
-              : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
-          }`}
-        >
-          <Radar size={18} />
-          <span>Radar Chart</span>
-        </button>
-        <button
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+              viewMode === "spider"
+                ? "bg-chalk-yellow text-black font-semibold"
+                : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
+            }`}
+          >
+            <Radar size={18} />
+            <span>Radar Chart</span>
+          </button>
+          <button
           onClick={() => setViewMode("clock")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-            viewMode === "clock"
-              ? "bg-chalk-yellow text-black font-semibold"
-              : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
-          }`}
-        >
-          <ClockIcon size={18} />
-          <span>Clock Chart</span>
-        </button>
-        <button
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+              viewMode === "clock"
+                ? "bg-chalk-yellow text-black font-semibold"
+                : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
+            }`}
+          >
+            <ClockIcon size={18} />
+            <span>Clock Chart</span>
+          </button>
+          <button
           onClick={() => setViewMode("histogram")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
             viewMode === "histogram"
@@ -109,48 +111,59 @@ export function Whiteboard({
           <span>Histogram Chart</span>
         </button>
         <button
-          onClick={() => setViewMode("slides")}
+          onClick={() => setViewMode("socioeconomic")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-            viewMode === "slides"
+            viewMode === "socioeconomic"
               ? "bg-chalk-yellow text-black font-semibold"
               : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
           }`}
         >
-          <BookOpen size={18} />
-          <span>Country Facts</span>
+          <Users size={18} />
+          <span>Socioeconomic</span>
         </button>
-      </div>
+        <button
+          onClick={() => setViewMode("slides")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+              viewMode === "slides"
+                ? "bg-chalk-yellow text-black font-semibold"
+                : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
+            }`}
+          >
+            <BookOpen size={18} />
+            <span>Country Facts</span>
+          </button>
+        </div>
 
-      {/* Content Area */}
-      <div className="flex-1 min-h-0 relative">
-        <AnimatePresence mode="wait">
-          {viewMode === "spider" && (
-            <motion.div
-              key="spider"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0"
-            >
-              <SpiderRadarChart />
-            </motion.div>
-          )}
-          {viewMode === "clock" && (
-            <motion.div
-              key="clock"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="absolute inset-0"
-            >
-              <ClockChart
-                data={clockData}
-                title="School Day Schedules by Country"
-                description="Select up to 3 countries to compare their school day schedules."
-              />
-            </motion.div>
-          )}
+        {/* Content Area */}
+        <div className="flex-1 min-h-0 relative">
+          <AnimatePresence mode="wait">
+            {viewMode === "spider" && (
+              <motion.div
+                key="spider"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0"
+              >
+                <SpiderRadarChart />
+              </motion.div>
+            )}
+            {viewMode === "clock" && (
+              <motion.div
+                key="clock"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="absolute inset-0"
+              >
+                <ClockChart
+                  data={clockData}
+                  title="School Day Schedules by Country"
+                  description="Select up to 3 countries to compare their school day schedules."
+                />
+              </motion.div>
+            )}
           {viewMode === "histogram" && (
             <motion.div
               key="histogram"
@@ -165,6 +178,22 @@ export function Whiteboard({
                 selectedMetrics={selectedMetrics}
                 sortBy={histogramSortBy}
                 sortOrder={histogramSortOrder}
+              />
+            </motion.div>
+          )}
+          {viewMode === "socioeconomic" && (
+            <motion.div
+              key="socioeconomic"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="absolute inset-0"
+            >
+              <SocioeconomicChart
+                data={socioeconomicData}
+                title="Family Background: The Resources Students Bring to School"
+                description="Compare socioeconomic status (ESCS) and its impact on Math performance across countries."
               />
             </motion.div>
           )}
