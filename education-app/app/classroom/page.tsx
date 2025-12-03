@@ -2,16 +2,13 @@
 
 import { useState } from "react";
 import { Whiteboard } from "@/components/classroom/Whiteboard";
-import { FilterPanel } from "@/components/classroom/FilterPanel";
 import { Notebook } from "@/components/classroom/Notebook";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import { ArrowLeft, ClipboardList } from "lucide-react";
 
 export default function ClassroomPage() {
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
-  const [selectedSubject, setSelectedSubject] = useState<string>("All");
   // Histogram filter state
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>([
     "BELONG",
@@ -73,24 +70,6 @@ export default function ClassroomPage() {
           histogramSortOrder={histogramSortOrder}
         />
       </div>
-
-      {/* Filter Panel */}
-      <FilterPanel
-        isOpen={isFilterOpen}
-        onToggle={() => setIsFilterOpen(!isFilterOpen)}
-        selectedCountries={selectedCountries}
-        onCountryChange={handleCountryToggle}
-        selectedSubject={selectedSubject}
-        onSubjectChange={setSelectedSubject}
-        showHistogramFilters={isHistogram}
-        selectedMetrics={selectedMetrics}
-        onMetricToggle={handleMetricToggle}
-        histogramSortBy={histogramSortBy}
-        onHistogramSortByChange={setHistogramSortBy}
-        histogramSortOrder={histogramSortOrder}
-        onHistogramSortOrderChange={setHistogramSortOrder}
-      />
-
       {/* Notebook */}
       <Notebook />
     </main>
