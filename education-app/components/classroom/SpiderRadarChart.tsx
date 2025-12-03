@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Chart from 'chart.js/auto';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const DEFAULT_MAX_COUNTRIES = 3;
 
@@ -136,22 +136,75 @@ export function SpiderRadarChart({
 
   // Initialize / update Chart.js radar chart when data or selection changes
   useEffect(() => {
-    // Destroy chart if no countries selected or canvas is gone
-    if (selectedCountries.length === 0 || !chartRef.current) {
-      if (chartInstanceRef.current) {
-        chartInstanceRef.current.destroy();
-        chartInstanceRef.current = null;
-        prevSelectedRef.current = [];
-      }
-      return;
-    }
-
-    if (!statColumns.length) {
+    // Need canvas and stat columns to proceed
+    if (!chartRef.current || !statColumns.length) {
       return;
     }
 
     const ctx = chartRef.current.getContext('2d');
     if (!ctx) return;
+
+    // Create chart if it doesn't exist (show empty grid even before selecting countries)
+    if (!chartInstanceRef.current) {
+      chartInstanceRef.current = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: statColumns,
+          datasets: [],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                color: '#fcfcfc',
+                font: { size: 14 },
+                padding: 15,
+                usePointStyle: true,
+              },
+            },
+            tooltip: {
+              callbacks: {
+                label(context: { parsed: { r: number }; dataset: { label?: string } }) {
+                  const value = context.parsed.r;
+                  return `${context.dataset.label}: ${value.toFixed(1)}th percentile`;
+                },
+              },
+            },
+          },
+          scales: {
+            r: {
+              suggestedMin: 0,
+              suggestedMax: 100,
+              grid: { color: 'rgba(255, 255, 255, 0.2)' },
+              angleLines: { color: 'rgba(255, 255, 255, 0.4)' },
+              pointLabels: { color: '#ffffff', font: { size: 11 } },
+              ticks: {
+                color: '#ffffff',
+                showLabelBackdrop: false,
+                backdropColor: 'rgba(0,0,0,0)',
+                stepSize: 20,
+                callback(value: number | string) {
+                  return typeof value === 'number' ? value.toFixed(0) + 'th' : value + 'th';
+                },
+              },
+            },
+          },
+        },
+      });
+    }
+
+    // If no countries selected, show empty chart with labels
+    if (selectedCountries.length === 0) {
+      chartInstanceRef.current.data.labels = statColumns;
+      chartInstanceRef.current.data.datasets = [];
+      chartInstanceRef.current.update();
+      prevSelectedRef.current = [];
+      return;
+    }
 
     const palette = [
       'rgba(129, 212, 250, 0.8)', // chalk-blue
@@ -175,71 +228,6 @@ export function SpiderRadarChart({
         return val !== null && val !== undefined ? val : 0;
       });
     });
-
-    // Create chart if it doesn't exist
-    // Since AnimatePresence recreates the canvas, we always recreate the chart
-    if (!chartInstanceRef.current) {
-      chartInstanceRef.current = new Chart(ctx, {
-        type: 'radar',
-        data: {
-          labels: statColumns,
-          datasets: [],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          animation: false, // manual animation
-          plugins: {
-            legend: {
-              position: 'top',
-              labels: {
-                color: '#fcfcfc',
-                font: {
-                  size: 14,
-                },
-                padding: 15,
-                usePointStyle: true,
-              },
-            },
-            tooltip: {
-              callbacks: {
-                label(context: { parsed: { r: number }; dataset: { label?: string } }) {
-                  const value = context.parsed.r;
-                  return `${context.dataset.label}: ${value.toFixed(1)}th percentile`;
-                },
-              },
-            },
-          },
-          scales: {
-            r: {
-              suggestedMin: 0,
-              suggestedMax: 100,
-              grid: {
-                color: 'rgba(255, 255, 255, 0.2)',
-              },
-              angleLines: {
-                color: 'rgba(255, 255, 255, 0.4)',
-              },
-              pointLabels: {
-                color: '#ffffff',
-                font: {
-                  size: 11,
-                },
-              },
-              ticks: {
-                color: '#ffffff',
-                showLabelBackdrop: false,
-                backdropColor: 'rgba(0,0,0,0)',
-                stepSize: 20,
-                callback(value: number | string) {
-                  return typeof value === 'number' ? value.toFixed(0) + 'th' : value + 'th';
-                },
-              },
-            },
-          },
-        },
-      });
-    }
 
     const chart = chartInstanceRef.current;
     if (!chart) return;
@@ -441,44 +429,28 @@ export function SpiderRadarChart({
             )}
           </div>
 
-          {/* Selected Countries Display */}
-          {selectedCountries.length > 0 && (
-            <div className="mb-4 text-center">
-              <p className="text-chalk-white/80 text-sm mb-2">
-                Selected: {selectedCountries.join(', ')}
-              </p>
-              <p className="text-chalk-white/50 text-xs">
-                {selectedCountries.length < maxCountries 
-                  ? `Select up to ${maxCountries - selectedCountries.length} more`
-                  : 'Maximum countries selected'}
-              </p>
+          {/* Inline Chart Display - Always visible */}
+          <div className="mt-4 flex-1 min-h-[400px] relative">
+            <div className="h-full flex flex-col">
+              {/* Chart Container */}
+              <div className="flex-1 min-h-[400px] relative">
+                <canvas ref={chartRef} className="w-full h-full" />
+                {/* Placeholder text when no countries selected */}
+                {selectedCountries.length === 0 && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <p className="text-chalk-white/30 text-lg italic">
+                      Select countries above to see the radar chart
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="mt-3 text-center text-xs text-chalk-white/40">
+                Data from {csvUrl}
+              </div>
             </div>
-          )}
-
-          {/* Inline Chart Display */}
-          <AnimatePresence mode="wait">
-            {selectedCountries.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{ duration: 0.3 }}
-                className="mt-4 flex-1 min-h-[400px] relative"
-              >
-                <div className="h-full flex flex-col">
-                  {/* Chart Container */}
-                  <div className="flex-1 min-h-[400px] relative">
-                    <canvas ref={chartRef} className="w-full h-full" />
-                  </div>
-
-                  {/* Footer */}
-                  <div className="mt-3 text-center text-xs text-chalk-white/40">
-                    Data from {csvUrl}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          </div>
         </>
       )}
     </div>
