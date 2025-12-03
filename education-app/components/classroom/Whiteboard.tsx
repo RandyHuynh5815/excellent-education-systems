@@ -76,10 +76,10 @@ export function Whiteboard({
     return (
       <div className="w-full h-full flex flex-col">
         {/* Navigation Tabs */}
-        <div className="flex gap-2 p-4 border-b-2 border-chalk-white/20">
+        <div className="flex gap-1 p-2 border-b-2 border-chalk-white/20">
           <button
           onClick={() => setViewMode("spider")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2 px-2 py-2 rounded-lg transition-all ${
               viewMode === "spider"
                 ? "bg-chalk-yellow text-black font-semibold"
                 : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
@@ -90,7 +90,7 @@ export function Whiteboard({
           </button>
           <button
           onClick={() => setViewMode("clock")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2 px-2 py-2 rounded-lg transition-all ${
               viewMode === "clock"
                 ? "bg-chalk-yellow text-black font-semibold"
                 : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
@@ -101,7 +101,7 @@ export function Whiteboard({
           </button>
           <button
           onClick={() => setViewMode("histogram")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+          className={`flex-1 flex items-center justify-center gap-2 px-2 py-2 rounded-lg transition-all ${
             viewMode === "histogram"
               ? "bg-chalk-yellow text-black font-semibold"
               : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
@@ -112,7 +112,7 @@ export function Whiteboard({
         </button>
         <button
           onClick={() => setViewMode("socioeconomic")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+          className={`flex-1 flex items-center justify-center gap-2 px-2 py-2 rounded-lg transition-all ${
             viewMode === "socioeconomic"
               ? "bg-chalk-yellow text-black font-semibold"
               : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
@@ -123,7 +123,7 @@ export function Whiteboard({
         </button>
         <button
           onClick={() => setViewMode("slides")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2 px-2 py-2 rounded-lg transition-all ${
               viewMode === "slides"
                 ? "bg-chalk-yellow text-black font-semibold"
                 : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
@@ -157,11 +157,7 @@ export function Whiteboard({
                 transition={{ duration: 0.3 }}
                 className="absolute inset-0"
               >
-                <ClockChart
-                  data={clockData}
-                  title="School Day Schedules by Country"
-                  description="Select up to 3 countries to compare their school day schedules."
-                />
+                <ClockChart data={clockData} />
               </motion.div>
             )}
           {viewMode === "histogram" && (
@@ -190,11 +186,7 @@ export function Whiteboard({
               transition={{ duration: 0.3 }}
               className="absolute inset-0"
             >
-              <SocioeconomicChart
-                data={socioeconomicData}
-                title="Family Background: The Resources Students Bring to School"
-                description="Compare socioeconomic status (ESCS) and its impact on Math performance across countries."
-              />
+              <SocioeconomicChart data={socioeconomicData} />
             </motion.div>
           )}
           {viewMode === "slides" && (

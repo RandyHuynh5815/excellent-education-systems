@@ -73,21 +73,34 @@ interface SpiderRadarChartProps {
   description?: string;
 }
 
+// Label definitions mapping
+const LABEL_DEFINITIONS: Record<string, string> = {
+  'Percentage of gov. spending on education': 'Percent of the total government spending on education expenses',
+  'Obesity rate per 100': 'Percentage of a country\'s population classified as obese',
+  'Internet Usage (%)': 'Percent of people in the region that use the internet',
+  'Democracy Index': 'Measures how democratic a country is based on its elections, government functioning, political freedoms, and civil liberties',
+  'Average IQ': 'Average of all reported IQ scores',
+  '2024 GDP per capita': 'Economic output for each person in the country',
+};
+
 export function SpiderRadarChart({
   csvUrl = '/spiderplot.csv',
   countries = DEFAULT_COUNTRIES,
   maxCountries = DEFAULT_MAX_COUNTRIES,
-  title = 'Country Comparison Radar Chart',
-  description = 'Select up to 3 countries to compare their percentile scores across multiple dimensions.',
+  title = 'Country Comparison',
+  description = 'Compare 6 country characteristics (Education spending, Obesity Rate, Internet Usage, Democracy Index, Average IQ, GDP per Capita) to better understand fundamental country systems.',
 }: SpiderRadarChartProps) {
   const [statColumns, setStatColumns] = useState<string[]>([]);
   const [dataByCountry, setDataByCountry] = useState<Record<string, Record<string, number | null>>>({});
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [error, setError] = useState('');
+  const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstanceRef = useRef<Chart | null>(null);
   const prevSelectedRef = useRef<string[]>([]);
   const animationFrameRef = useRef<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Load CSV on mount
   useEffect(() => {
@@ -161,12 +174,14 @@ export function SpiderRadarChart({
               position: 'top',
               labels: {
                 color: '#fcfcfc',
-                font: { size: 14 },
+                font: { size: 18, family: 'var(--font-patrick), "Patrick Hand", "Comic Sans MS", cursive' },
                 padding: 15,
                 usePointStyle: true,
               },
             },
             tooltip: {
+              titleFont: { size: 16, family: 'var(--font-patrick), "Patrick Hand", "Comic Sans MS", cursive' },
+              bodyFont: { size: 16, family: 'var(--font-patrick), "Patrick Hand", "Comic Sans MS", cursive' },
               callbacks: {
                 label(context: { parsed: { r: number }; dataset: { label?: string } }) {
                   const value = context.parsed.r;
@@ -181,9 +196,16 @@ export function SpiderRadarChart({
               suggestedMax: 100,
               grid: { color: 'rgba(255, 255, 255, 0.2)' },
               angleLines: { color: 'rgba(255, 255, 255, 0.4)' },
-              pointLabels: { color: '#ffffff', font: { size: 11 } },
+              pointLabels: { 
+                color: '#ffffff', 
+                font: { 
+                  size: 11, 
+                  family: 'var(--font-patrick), "Patrick Hand", "Comic Sans MS", cursive'
+                }
+              },
               ticks: {
                 color: '#ffffff',
+                font: { size: 18, family: 'var(--font-patrick), "Patrick Hand", "Comic Sans MS", cursive' },
                 showLabelBackdrop: false,
                 backdropColor: 'rgba(0,0,0,0)',
                 stepSize: 20,
@@ -201,7 +223,7 @@ export function SpiderRadarChart({
     if (selectedCountries.length === 0) {
       chartInstanceRef.current.data.labels = statColumns;
       chartInstanceRef.current.data.datasets = [];
-      chartInstanceRef.current.update();
+      chartInstanceRef.current.update('none');
       prevSelectedRef.current = [];
       return;
     }
@@ -328,6 +350,87 @@ export function SpiderRadarChart({
     };
   }, [statColumns, dataByCountry, selectedCountries]);
 
+  // Handle mouse move to detect label hover
+  useEffect(() => {
+    const canvas = chartRef.current;
+    if (!canvas || !chartInstanceRef.current || statColumns.length === 0) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const chart = chartInstanceRef.current;
+      if (!chart) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      // Get chart center and radius
+      const chartArea = chart.chartArea;
+      const centerX = (chartArea.left + chartArea.right) / 2;
+      const centerY = (chartArea.top + chartArea.bottom) / 2;
+      const radius = Math.min(
+        (chartArea.right - chartArea.left) / 2,
+        (chartArea.bottom - chartArea.top) / 2
+      ) * 0.9; // Labels are at ~90% of radius
+
+      // Calculate distance from center
+      const dx = x - centerX;
+      const dy = y - centerY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      // Check if mouse is near the outer edge where labels are
+      const labelRadius = radius * 1.15; // Labels are slightly outside the chart
+      const distanceTolerance = 30; // Pixel tolerance for distance from label radius
+      const angleTolerance = Math.PI / (statColumns.length * 2); // Half the angle between labels
+
+      // Check if mouse is at the right distance
+      if (Math.abs(distance - labelRadius) < distanceTolerance) {
+        // Calculate angle to determine which label
+        const angle = Math.atan2(dy, dx);
+        const normalizedAngle = (angle + Math.PI / 2 + 2 * Math.PI) % (2 * Math.PI);
+        const anglePerLabel = (2 * Math.PI) / statColumns.length;
+        
+        // Find the closest label by checking each label's center angle
+        let closestLabelIndex = -1;
+        let minAngleDiff = Infinity;
+        
+        for (let i = 0; i < statColumns.length; i++) {
+          const labelCenterAngle = i * anglePerLabel;
+          let angleDiff = Math.abs(normalizedAngle - labelCenterAngle);
+          // Handle wrap-around
+          angleDiff = Math.min(angleDiff, 2 * Math.PI - angleDiff);
+          
+          if (angleDiff < minAngleDiff && angleDiff < angleTolerance) {
+            minAngleDiff = angleDiff;
+            closestLabelIndex = i;
+          }
+        }
+        
+        if (closestLabelIndex >= 0 && closestLabelIndex < statColumns.length) {
+          const label = statColumns[closestLabelIndex];
+          setHoveredLabel(label);
+          const rect = canvas.getBoundingClientRect();
+          setTooltipPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+        } else {
+          setHoveredLabel(null);
+        }
+      } else {
+        setHoveredLabel(null);
+      }
+    };
+
+    const handleMouseLeave = () => {
+      setHoveredLabel(null);
+    };
+
+    canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      canvas.removeEventListener('mousemove', handleMouseMove);
+      canvas.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [statColumns]);
+
   // Cleanup chart on unmount
   useEffect(() => {
     return () => {
@@ -371,18 +474,17 @@ export function SpiderRadarChart({
   }
 
   return (
-    <div className="w-full h-full flex flex-col p-6 relative pointer-events-auto overflow-y-auto">
+    <div ref={containerRef} className="w-full h-full flex flex-col p-4 relative pointer-events-auto overflow-y-auto font-patrick">
+      {/* Header */}
       {title && (
-        <div className="mb-4 border-b-2 border-white/20 pb-3">
-          <h2 className="text-2xl text-chalk-white font-bold mb-1">
+        <div className="mb-3 border-b-2 border-white/20 pb-2">
+          <h2 className="text-3xl text-chalk-white font-bold mb-2">
             {title}
           </h2>
+          {description && (
+            <p className="text-base text-chalk-white/70 italic">{description}</p>
+          )}
         </div>
-      )}
-      {description && (
-        <p className="text-base text-chalk-white/70 italic mb-4 text-center">
-          {description}
-        </p>
       )}
 
       {!statColumns.length ? (
@@ -392,68 +494,82 @@ export function SpiderRadarChart({
           </p>
         </div>
       ) : (
-        <>
-          {/* Country Selection Buttons on Chalkboard */}
-          <div className="flex flex-wrap gap-3 justify-center mb-4">
-            {availableCountries.length === 0 ? (
-              <p className="text-chalk-white/50 italic">No countries available. Check CSV data.</p>
-            ) : (
-              availableCountries.map((country) => {
-                const isSelected = selectedCountries.includes(country);
-                const isDisabled = !isSelected && selectedCountries.length >= maxCountries;
-                return (
-                  <motion.button
-                    key={country}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      if (!isDisabled) {
-                        handleCountryToggle(country);
-                      }
-                    }}
-                    disabled={isDisabled}
-                    className={`
-                      px-4 py-2 rounded-lg border-2 transition-all text-sm font-semibold
-                      ${isSelected
-                        ? 'bg-chalk-yellow text-black border-chalk-yellow shadow-lg'
-                        : isDisabled
-                        ? 'bg-transparent text-chalk-white/30 border-chalk-white/20 cursor-not-allowed'
-                        : 'bg-transparent text-chalk-white border-chalk-white/40 hover:border-chalk-blue hover:text-chalk-blue hover:bg-white/5 cursor-pointer'}
-                    `}
-                    whileHover={!isDisabled ? { scale: 1.05 } : {}}
-                    whileTap={!isDisabled ? { scale: 0.95 } : {}}
-                    style={{ pointerEvents: isDisabled ? 'none' : 'auto' }}
-                  >
-                    {country}
-                  </motion.button>
-                );
-              })
-            )}
-          </div>
-
-          {/* Inline Chart Display - Always visible */}
-          <div className="mt-4 flex-1 min-h-[400px] relative">
-            <div className="h-full flex flex-col">
-              {/* Chart Container */}
-              <div className="flex-1 min-h-[400px] relative">
-                <canvas ref={chartRef} className="w-full h-full" />
-                {/* Placeholder text when no countries selected */}
-                {selectedCountries.length === 0 && (
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <p className="text-chalk-white/30 text-lg italic">
-                      Select countries above to see the radar chart
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Footer */}
-              <div className="mt-3 text-center text-xs text-chalk-white/40">
-                Data from {csvUrl}
-              </div>
+        <div className="flex gap-4">
+          {/* Left: Country Selection */}
+          <div className="w-72 flex-shrink-0 flex flex-col">
+            <h3 className="text-sm font-semibold text-chalk-white mb-2">Filter Countries ({maxCountries} max)</h3>
+            
+            <div className="flex flex-col gap-2">
+              {availableCountries.length === 0 ? (
+                <p className="text-chalk-white/50 italic">No countries available. Check CSV data.</p>
+              ) : (
+                availableCountries.map((country) => {
+                  const isSelected = selectedCountries.includes(country);
+                  const isDisabled = !isSelected && selectedCountries.length >= maxCountries;
+                  return (
+                    <motion.button
+                      key={country}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (!isDisabled) {
+                          handleCountryToggle(country);
+                        }
+                      }}
+                      disabled={isDisabled}
+                      className={`
+                        w-full px-4 py-2 rounded-lg border-2 transition-all text-sm font-semibold text-left
+                        ${isSelected
+                          ? 'bg-chalk-yellow text-black border-chalk-yellow shadow-lg'
+                          : isDisabled
+                          ? 'bg-transparent text-chalk-white/30 border-chalk-white/20 cursor-not-allowed'
+                          : 'bg-transparent text-chalk-white border-chalk-white/40 hover:border-chalk-blue hover:text-chalk-blue hover:bg-white/5 cursor-pointer'}
+                      `}
+                      whileHover={!isDisabled ? { scale: 1.05 } : {}}
+                      whileTap={!isDisabled ? { scale: 0.95 } : {}}
+                      style={{ pointerEvents: isDisabled ? 'none' : 'auto' }}
+                    >
+                      {country}
+                    </motion.button>
+                  );
+                })
+              )}
             </div>
           </div>
-        </>
+
+          {/* Right: Chart Display */}
+          <div className="flex-1 relative flex flex-col" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+            <div className="relative" style={{ height: '600px' }}>
+              <canvas ref={chartRef} className="w-full h-full" />
+              {/* Placeholder text when no countries selected */}
+              {selectedCountries.length === 0 && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <p className="text-chalk-white/30 text-lg italic">
+                    Select countries to see the radar chart
+                  </p>
+                </div>
+              )}
+              {/* Tooltip for label definitions */}
+              {hoveredLabel && LABEL_DEFINITIONS[hoveredLabel] && (
+                <div
+                  className="absolute z-50 bg-black/90 border-2 border-chalk-white/40 rounded-lg p-3 shadow-lg pointer-events-none max-w-xs"
+                  style={{
+                    left: `${tooltipPosition.x}px`,
+                    top: `${tooltipPosition.y}px`,
+                    transform: 'translate(-50%, -100%)',
+                  }}
+                >
+                  <p className="text-chalk-white font-bold text-sm mb-1">{hoveredLabel}</p>
+                  <p className="text-chalk-white/80 text-xs">{LABEL_DEFINITIONS[hoveredLabel]}</p>
+                </div>
+              )}
+            </div>
+            {/* Footer */}
+            <div className="mt-2 text-center text-xs text-chalk-white/40">
+              Data from {csvUrl}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

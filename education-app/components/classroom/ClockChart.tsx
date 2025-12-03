@@ -15,8 +15,8 @@ const MAX_COUNTRIES = 3;
 
 export function ClockChart({
   data,
-  title = "School Day Schedules by Country",
-  description = "Select up to 3 countries to compare their school day schedules.",
+  title = "Time Spent in School",
+  description = "Compare the amount of time students spend in school, including after school classes. Cram school: After-school program where students receive intensive study, tutoring, or test preparation to improve their academic performance.",
 }: ClockChartProps) {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
 
@@ -42,20 +42,21 @@ export function ClockChart({
   );
 
   return (
-    <div className="w-full h-full flex flex-col p-6 relative pointer-events-auto overflow-y-auto">
+    <div className="w-full h-full flex flex-col p-6 relative pointer-events-auto overflow-y-auto font-patrick">
       {title && (
-        <div className="mb-4 border-b-2 border-white/20 pb-3">
-          <h2 className="text-2xl text-chalk-white font-bold mb-1">{title}</h2>
+        <div className="mb-3 border-b-2 border-white/20 pb-2">
+          <h2 className="text-3xl text-chalk-white font-bold mb-2">{title}</h2>
+          {description && (
+            <p className="text-base text-chalk-white/70 italic">{description}</p>
+          )}
         </div>
-      )}
-      {description && (
-        <p className="text-base text-chalk-white/70 italic mb-4 text-center">
-          {description}
-        </p>
       )}
 
       {/* Country Selection Buttons */}
-      <div className="flex flex-wrap gap-3 justify-center mb-4">
+      <div className="mb-2">
+        <h3 className="text-sm font-semibold text-chalk-white mb-2">Filter Countries (3 max)</h3>
+      </div>
+      <div className="flex flex-wrap gap-3 justify-start mb-4">
         {availableCountries.length === 0 ? (
           <p className="text-chalk-white/50 italic">No countries available.</p>
         ) : (
