@@ -173,7 +173,7 @@ export default function CountryEducationReportCards() {
       {submitted && (
         <div id="feedback-section" className="mt-12 space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
           
-            {/* Community Votes Chart */}
+          {/* Community Votes Chart */}
           <div className="max-w-5xl mx-auto bg-[#1a261d] p-8 rounded-xl border-2 border-white/10 shadow-2xl">
             <h3 className="text-4xl text-center mb-8 text-chalk-white">
               Community Consensus

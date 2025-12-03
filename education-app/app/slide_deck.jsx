@@ -2,6 +2,15 @@ import { useEffect, useState } from "react";
 import Papa from "papaparse";
 import { useSwipeable } from "react-swipeable";
 
+// Convert country name to flag filename (lowercase, spaces to hyphens)
+function getCountryFlagPath(country) {
+  const filename = country
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
+  return `/flags/${filename}.png`;
+}
+
 export default function App() {
   const [cards, setCards] = useState([]);
   const [index, setIndex] = useState(0);
@@ -92,14 +101,36 @@ export default function App() {
           padding: 20,
           boxShadow: "0 6px 15px rgba(0,0,0,0.12)",
           transition: "transform 0.2s ease, opacity 0.2s ease",
+          position: "relative",
         }}
       >
+        {/* Country Flag - Top Right */}
+        <img
+          src={getCountryFlagPath(current.country)}
+          alt={`${current.country} flag`}
+          style={{
+            position: "absolute",
+            top: 12,
+            right: 12,
+            width: 48,
+            height: 48,
+            objectFit: "cover",
+            borderRadius: 4,
+            boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+            border: "1px solid rgba(0,0,0,0.1)",
+          }}
+          onError={(e) => {
+            e.target.style.display = 'none';
+          }}
+        />
+
         {/* Header row */}
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
             marginBottom: 16,
+            paddingRight: 56,
           }}
         >
           <div>

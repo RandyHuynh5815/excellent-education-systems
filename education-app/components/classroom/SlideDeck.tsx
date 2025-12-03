@@ -14,6 +14,15 @@ interface CountryCard {
   fact3: string;
 }
 
+// Convert country name to flag filename (lowercase, spaces to hyphens)
+function getCountryFlagPath(country: string): string {
+  const filename = country
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
+  return `/flags/${filename}.png`;
+}
+
 export function SlideDeck() {
   const [cards, setCards] = useState<CountryCard[]>([]);
   const [index, setIndex] = useState(0);
@@ -98,15 +107,27 @@ export function SlideDeck() {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -50 }}
           transition={{ duration: 0.3 }}
-          className="w-full max-w-2xl min-h-[500px] bg-[#fffef5] border-4 border-chalk-white rounded-lg p-8 shadow-2xl"
+          className="w-full max-w-2xl min-h-[500px] bg-[#fffef5] border-4 border-chalk-white rounded-lg p-8 shadow-2xl relative"
           style={{
             boxShadow: '0 8px 20px rgba(0,0,0,0.3)',
             fontFamily: 'var(--font-patrick), "Patrick Hand", "Comic Sans MS", cursive',
             letterSpacing: '0.01em',
           }}
         >
+          {/* Country Flag - Top Right */}
+          <div className="absolute top-4 right-4 w-16 h-16 rounded shadow-md overflow-hidden border border-black/10">
+            <img
+              src={getCountryFlagPath(current.country)}
+              alt={`${current.country} flag`}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).parentElement!.style.display = 'none';
+              }}
+            />
+          </div>
+
           {/* Country Name - Large and Handwritten at Top */}
-          <div className="mb-8 pb-6 border-b-4 border-black/20">
+          <div className="mb-8 pb-6 border-b-4 border-black/20 pr-20">
             <h1 
               className="text-5xl font-bold text-black mb-3"
               style={{
