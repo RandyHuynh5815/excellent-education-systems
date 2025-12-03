@@ -238,7 +238,7 @@ export default function Home() {
         <div className="flex-1 flex items-center justify-center relative px-8 pt-8">
           {/* Whiteboard with welcome message */}
           <div
-            className="relative w-full max-w-[800px] h-[45vh] bg-[#1a261d] border-[12px] border-[#8d6e63] rounded-lg shadow-2xl flex flex-col items-center justify-center p-8"
+            className="relative w-full max-w-[800px] h-[50vh] bg-[#1a261d] border-[12px] border-[#8d6e63] rounded-lg shadow-2xl flex flex-col items-center justify-center p-8"
             style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.5)' }}
           >
             {/* Chalk tray */}
@@ -255,7 +255,7 @@ export default function Home() {
               </h1>
               
               {/* Text area with eraser animation */}
-              <div className="relative min-h-[120px] mb-8 max-w-2xl">
+              <div className="relative min-h-[80px] mb-8 max-w-2xl">
                 {/* Original text - visible in step 1 and during erasing */}
                 {(step === 1 || isErasing) && (
                   <div className="relative overflow-hidden">
