@@ -31,6 +31,7 @@ const colors = {
 };
 
 const METRICS = ["BELONG", "BULLIED", "FEELSAFE"];
+const MAX_COUNTRIES = 3;
 
 export function HistogramChart({
   data,
@@ -46,9 +47,9 @@ export function HistogramChart({
     return Array.from(new Set(data.map((d) => d.country))).sort();
   }, [data]);
 
-  // Internal state for country filter - initialize with all countries selected
+  // Internal state for country filter - initialize empty, will be set in useEffect
   const [internalFilteredCountries, setInternalFilteredCountries] =
-    useState<string[]>(availableCountries);
+    useState<string[]>([]);
   const [internalSortBy, setInternalSortBy] = useState<string>("none");
   const [internalSortOrder, setInternalSortOrder] = useState<"asc" | "desc">(
     "asc"
@@ -62,15 +63,17 @@ export function HistogramChart({
   const sortOrder = internalSortOrder;
 
   // Update internal state when availableCountries changes (e.g., data prop changes)
-  // Initialize with all countries if state is empty
+  // Initialize with first 3 countries (or all if less than 3) if state is empty
   useEffect(() => {
-    if (
-      availableCountries.length > 0 &&
-      internalFilteredCountries.length === 0
-    ) {
-      setInternalFilteredCountries([...availableCountries]);
+    if (availableCountries.length > 0) {
+      // Initialize with first 3 countries on first load
+      if (internalFilteredCountries.length === 0) {
+        setInternalFilteredCountries(
+          availableCountries.slice(0, MAX_COUNTRIES)
+        );
+      }
     }
-  }, [availableCountries, internalFilteredCountries.length]);
+  }, [availableCountries]);
 
   // Filter by countries
   const filteredData = useMemo(() => {
@@ -87,6 +90,9 @@ export function HistogramChart({
       const isSelected = current.includes(country);
       if (isSelected) {
         return current.filter((c) => c !== country);
+      }
+      if (current.length >= MAX_COUNTRIES) {
+        return current;
       }
       return [...current, country];
     });
@@ -180,24 +186,32 @@ export function HistogramChart({
             ) : (
               availableCountries.map((country) => {
                 const isSelected = filteredCountries.includes(country);
+                const isDisabled =
+                  !isSelected && filteredCountries.length >= MAX_COUNTRIES;
                 return (
                   <motion.button
                     key={country}
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      handleCountryToggle(country);
+                      if (!isDisabled) {
+                        handleCountryToggle(country);
+                      }
                     }}
+                    disabled={isDisabled}
                     className={`
                       px-4 py-2 rounded-lg border-2 transition-all text-sm font-semibold
                       ${
                         isSelected
                           ? "bg-chalk-yellow text-black border-chalk-yellow shadow-lg"
+                          : isDisabled
+                          ? "bg-transparent text-chalk-white/30 border-chalk-white/20 cursor-not-allowed"
                           : "bg-transparent text-chalk-white border-chalk-white/40 hover:border-chalk-blue hover:text-chalk-blue hover:bg-white/5 cursor-pointer"
                       }
                     `}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={!isDisabled ? { scale: 1.05 } : {}}
+                    whileTap={!isDisabled ? { scale: 0.95 } : {}}
+                    style={{ pointerEvents: isDisabled ? "none" : "auto" }}
                   >
                     {country}
                   </motion.button>
@@ -205,12 +219,6 @@ export function HistogramChart({
               })
             )}
           </div>
-          {filteredCountries.length > 0 && (
-            <p className="text-chalk-white/60 text-sm text-center md:text-left mt-2">
-              Showing {filteredCountries.length} of {availableCountries.length}{" "}
-              countries
-            </p>
-          )}
         </div>
 
         {/* Sort Filter */}

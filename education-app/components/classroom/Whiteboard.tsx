@@ -86,7 +86,7 @@ export function Whiteboard({
             }`}
           >
             <Radar size={18} />
-            <span>Radar Chart</span>
+            <span>Overall Country Comparison</span>
           </button>
           <button
           onClick={() => setViewMode("clock")}
@@ -97,7 +97,7 @@ export function Whiteboard({
             }`}
           >
             <ClockIcon size={18} />
-            <span>Clock Chart</span>
+            <span>Time Spent in School</span>
           </button>
           <button
           onClick={() => setViewMode("histogram")}
@@ -108,7 +108,7 @@ export function Whiteboard({
           }`}
         >
           <BarChart3 size={18} />
-          <span>Histogram Chart</span>
+          <span>Mental Health and Well Being</span>
         </button>
         <button
           onClick={() => setViewMode("socioeconomic")}
@@ -119,7 +119,7 @@ export function Whiteboard({
           }`}
         >
           <Users size={18} />
-          <span>Socioeconomic</span>
+          <span>Family Socioeconomic Status</span>
         </button>
         <button
           onClick={() => setViewMode("slides")}
@@ -130,7 +130,7 @@ export function Whiteboard({
             }`}
           >
             <BookOpen size={18} />
-            <span>Country Facts</span>
+            <span>Mathematical Ranking</span>
           </button>
         </div>
 
