@@ -304,11 +304,7 @@ export function HistogramChart({
                 }}
               />
               <Legend
-<<<<<<< HEAD
-                wrapperStyle={{ color: "#fcfcfc", fontSize: "25px" }}
-=======
                 wrapperStyle={{ color: "#fcfcfc", fontSize: "14px", fontFamily: 'var(--font-patrick), "Patrick Hand", "Comic Sans MS", cursive' }}
->>>>>>> 6cf41d5 (Update chart components: add descriptions, fix styling, and resolve linting errors)
                 iconType="square"
               />
               {metricsSet.has("BELONG") && (
