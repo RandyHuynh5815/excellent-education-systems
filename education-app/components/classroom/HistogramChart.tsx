@@ -31,7 +31,7 @@ const colors = {
 };
 
 const METRICS = ["BELONG", "BULLIED", "FEELSAFE"];
-const MAX_COUNTRIES = 3;
+const MAX_COUNTRIES = 6;
 
 export function HistogramChart({
   data,
@@ -48,8 +48,9 @@ export function HistogramChart({
   }, [data]);
 
   // Internal state for country filter - initialize empty, will be set in useEffect
-  const [internalFilteredCountries, setInternalFilteredCountries] =
-    useState<string[]>([]);
+  const [internalFilteredCountries, setInternalFilteredCountries] = useState<
+    string[]
+  >([]);
   const [internalSortBy, setInternalSortBy] = useState<string>("none");
   const [internalSortOrder, setInternalSortOrder] = useState<"asc" | "desc">(
     "asc"
@@ -287,11 +288,11 @@ export function HistogramChart({
                 strokeDasharray="3 3"
                 stroke="rgba(255,255,255,0.1)"
               />
-              <XAxis type="number" tick={{ fill: "#fcfcfc", fontSize: 10 }} />
+              <XAxis type="number" tick={{ fill: "#fcfcfc", fontSize: 20 }} />
               <YAxis
                 type="category"
                 dataKey="country"
-                tick={{ fill: "#fcfcfc", fontSize: 10 }}
+                tick={{ fill: "#fcfcfc", fontSize: 25 }}
                 width={70}
               />
               <Tooltip
@@ -309,7 +310,7 @@ export function HistogramChart({
                 }}
               />
               <Legend
-                wrapperStyle={{ color: "#fcfcfc", fontSize: "10px" }}
+                wrapperStyle={{ color: "#fcfcfc", fontSize: "25px" }}
                 iconType="square"
               />
               {metricsSet.has("BELONG") && (
