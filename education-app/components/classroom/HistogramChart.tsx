@@ -171,7 +171,7 @@ export function HistogramChart({
         {/* Country Filter Buttons */}
         <div className="flex-1 w-full md:w-auto">
           <h3 className="text-sm font-semibold text-chalk-white mb-2">
-            Filter Countries (3 max)
+            Filter Countries (6 max)
           </h3>
           <div className="flex flex-wrap gap-3 justify-center md:justify-start">
             {availableCountries.length === 0 ? (
