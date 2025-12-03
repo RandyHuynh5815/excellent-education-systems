@@ -29,7 +29,7 @@ import { HistogramChart } from "./HistogramChart";
 import { ClockChart } from "./ClockChart";
 import { VISUALIZATIONS } from "@/lib/data";
 
-type ViewMode = "spider" | "clock" | "slides" | "question";
+type ViewMode = "spider" | "clock" | "histogram" | "slides" | "question";
 
 interface WhiteboardProps {
   data: VisualizationData | null;
@@ -87,10 +87,11 @@ export function Whiteboard({
 
     if (manualViewMode) {
       // If manual override is set, use it
-      // Allow clock and spider/slides even without student data
+      // Allow clock, histogram, and spider/slides even without student data
       if (
         hasStudentData ||
         manualViewMode === "clock" ||
+        manualViewMode === "histogram" ||
         manualViewMode === "spider" ||
         manualViewMode === "slides"
       ) {
@@ -106,6 +107,7 @@ export function Whiteboard({
   // Show navigation tabs when no student is selected
   if (!data || !question) {
     const clockData = (VISUALIZATIONS["q4"]?.data as ClockData[]) || [];
+    const histogramData = (VISUALIZATIONS["q5"]?.data as HistogramData[]) || [];
 
     return (
       <div className="w-full h-full flex flex-col">
@@ -132,6 +134,17 @@ export function Whiteboard({
           >
             <ClockIcon size={18} />
             <span>Clock Chart</span>
+          </button>
+          <button
+            onClick={() => setManualViewMode("histogram")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+              viewMode === "histogram"
+                ? "bg-chalk-yellow text-black font-semibold"
+                : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
+            }`}
+          >
+            <BarChart3 size={18} />
+            <span>Histogram Chart</span>
           </button>
           <button
             onClick={() => setManualViewMode("slides")}
@@ -176,6 +189,23 @@ export function Whiteboard({
                 />
               </motion.div>
             )}
+            {viewMode === "histogram" && (
+              <motion.div
+                key="histogram"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 flex flex-col p-4"
+              >
+                <HistogramChart
+                  data={histogramData}
+                  filteredCountries={filteredCountries}
+                  selectedMetrics={selectedMetrics}
+                  sortBy={histogramSortBy}
+                  sortOrder={histogramSortOrder}
+                />
+              </motion.div>
+            )}
             {viewMode === "slides" && (
               <motion.div
                 key="slides"
@@ -196,6 +226,7 @@ export function Whiteboard({
   // Handle clock visualization type
   if (data.type === "clock") {
     const clockData = data.data as ClockData[];
+    const histogramData = (VISUALIZATIONS["q5"]?.data as HistogramData[]) || [];
 
     return (
       <div className="w-full min-h-full flex flex-col">
@@ -222,6 +253,17 @@ export function Whiteboard({
           >
             <Radar size={18} />
             <span>Radar Chart</span>
+          </button>
+          <button
+            onClick={() => setManualViewMode("histogram")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+              viewMode === "histogram"
+                ? "bg-chalk-yellow text-black font-semibold"
+                : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
+            }`}
+          >
+            <BarChart3 size={18} />
+            <span>Histogram Chart</span>
           </button>
           <button
             onClick={() => setManualViewMode("slides")}
@@ -284,6 +326,23 @@ export function Whiteboard({
                   data={clockData}
                   title="School Day Schedules by Country"
                   description="Select up to 3 countries to compare their school day schedules."
+                />
+              </motion.div>
+            )}
+            {viewMode === "histogram" && (
+              <motion.div
+                key="histogram"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 flex flex-col p-4"
+              >
+                <HistogramChart
+                  data={histogramData}
+                  filteredCountries={filteredCountries}
+                  selectedMetrics={selectedMetrics}
+                  sortBy={histogramSortBy}
+                  sortOrder={histogramSortOrder}
                 />
               </motion.div>
             )}
@@ -362,33 +421,24 @@ export function Whiteboard({
 
         {/* Content Area */}
         <div className="flex-1 min-h-0 relative">
-          <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait">
             {viewMode === "question" && (
-              <motion.div
-                key={question.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 flex flex-col p-4"
+          <motion.div
+            key={question.id}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+                className="absolute inset-0"
               >
-                <div className="mb-4 border-b-2 border-white/20 pb-3 flex-shrink-0">
-                  <h2 className="text-2xl text-chalk-white font-bold mb-1">
-                    {question.text}
-                  </h2>
-                  <p className="text-sm text-chalk-white/70 italic">
-                    {question.description}
-                  </p>
-                </div>
-
-                <div className="flex-1 min-h-0">
-                  <HistogramChart
-                    data={histogramData}
-                    filteredCountries={filteredCountries}
-                    selectedMetrics={selectedMetrics}
-                    sortBy={histogramSortBy}
-                    sortOrder={histogramSortOrder}
-                  />
-                </div>
+                <HistogramChart
+                  data={histogramData}
+                  filteredCountries={filteredCountries}
+                  selectedMetrics={selectedMetrics}
+                  sortBy={histogramSortBy}
+                  sortOrder={histogramSortOrder}
+                  title={question.text}
+                  description={question.description}
+                />
               </motion.div>
             )}
             {viewMode === "spider" && (
@@ -433,9 +483,9 @@ export function Whiteboard({
                 className="absolute inset-0"
               >
                 <SlideDeck />
-              </motion.div>
+          </motion.div>
             )}
-          </AnimatePresence>
+        </AnimatePresence>
         </div>
       </div>
     );
@@ -526,6 +576,7 @@ export function Whiteboard({
   // For clock and histogram types, they're already handled above, so this is for bar/scatter types
   // Show navigation tabs for student questions
   const clockData = (VISUALIZATIONS["q4"]?.data as ClockData[]) || [];
+  const histogramData = (VISUALIZATIONS["q5"]?.data as HistogramData[]) || [];
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -565,6 +616,17 @@ export function Whiteboard({
           <span>Clock Chart</span>
         </button>
         <button
+          onClick={() => setManualViewMode("histogram")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+            viewMode === "histogram"
+              ? "bg-chalk-yellow text-black font-semibold"
+              : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
+          }`}
+        >
+          <BarChart3 size={18} />
+          <span>Histogram Chart</span>
+        </button>
+        <button
           onClick={() => setManualViewMode("slides")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
             viewMode === "slides"
@@ -579,30 +641,30 @@ export function Whiteboard({
 
       {/* Content Area */}
       <div className="flex-1 min-h-0 relative p-6">
-        <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait">
           {viewMode === "question" && (
-            <motion.div
-              key={question.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
+        <motion.div
+          key={question.id}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0 }}
               className="flex-1 flex flex-col h-full"
-            >
-              <div className="mb-6 border-b-2 border-white/20 pb-4 flex-shrink-0">
-                <h2 className="text-3xl text-chalk-white font-bold mb-2">
-                  {question.text}
-                </h2>
-                <p className="text-lg text-chalk-white/70 italic">
-                  {question.description}
-                </p>
-              </div>
+        >
+          <div className="mb-6 border-b-2 border-white/20 pb-4 flex-shrink-0">
+            <h2 className="text-3xl text-chalk-white font-bold mb-2">
+              {question.text}
+            </h2>
+            <p className="text-lg text-chalk-white/70 italic">
+              {question.description}
+            </p>
+          </div>
 
-              <div className="flex-1 min-h-0 relative">{renderChart()}</div>
+          <div className="flex-1 min-h-0 relative">{renderChart()}</div>
 
-              <div className="mt-4 text-center text-sm text-chalk-white/40 flex-shrink-0">
-                Source: PISA 2022 (Mock Data)
-              </div>
-            </motion.div>
+          <div className="mt-4 text-center text-sm text-chalk-white/40 flex-shrink-0">
+            Source: PISA 2022 (Mock Data)
+          </div>
+        </motion.div>
           )}
           {viewMode === "spider" && (
             <motion.div
@@ -627,7 +689,24 @@ export function Whiteboard({
               <ClockChart
                 data={clockData}
                 title="School Day Schedules by Country"
-                description="Select up to 2 countries to compare their school day schedules."
+                description="Select up to 3 countries to compare their school day schedules."
+              />
+            </motion.div>
+          )}
+          {viewMode === "histogram" && (
+            <motion.div
+              key="histogram"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 flex flex-col p-4"
+            >
+              <HistogramChart
+                data={histogramData}
+                filteredCountries={filteredCountries}
+                selectedMetrics={selectedMetrics}
+                sortBy={histogramSortBy}
+                sortOrder={histogramSortOrder}
               />
             </motion.div>
           )}
@@ -642,7 +721,7 @@ export function Whiteboard({
               <SlideDeck />
             </motion.div>
           )}
-        </AnimatePresence>
+      </AnimatePresence>
       </div>
     </div>
   );
