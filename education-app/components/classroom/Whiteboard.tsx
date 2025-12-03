@@ -14,12 +14,7 @@ import {
   ZAxis,
   Cell,
 } from "recharts";
-import {
-  VisualizationData,
-  Question,
-  ClockData,
-  HistogramData,
-} from "@/lib/types";
+import { ClockData, HistogramData } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { SpiderRadarChart } from "./SpiderRadarChart";
 import { SlideDeck } from "./SlideDeck";
@@ -29,11 +24,9 @@ import { HistogramChart } from "./HistogramChart";
 import { ClockChart } from "./ClockChart";
 import { VISUALIZATIONS } from "@/lib/data";
 
-type ViewMode = "spider" | "clock" | "histogram" | "slides" | "question";
+type ViewMode = "spider" | "clock" | "histogram" | "slides";
 
 interface WhiteboardProps {
-  data: VisualizationData | null;
-  question: Question | null;
   filteredCountries: string[];
   // Histogram-specific props
   selectedMetrics?: string[];
@@ -68,533 +61,22 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
 };
 
 export function Whiteboard({
-  data,
-  question,
   filteredCountries,
   selectedMetrics = ["BELONG", "BULLIED", "FEELSAFE"],
   histogramSortBy = "none",
   histogramSortOrder = "asc",
 }: WhiteboardProps) {
-  const hasStudentData = data && question;
-  const [manualViewMode, setManualViewMode] = useState<ViewMode | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>("spider");
 
-  // Determine view mode: use manual override if set and valid, otherwise default based on student data
-  const viewMode: ViewMode = (() => {
-    // For clock and histogram types, always show tabs and allow switching
-    if (data?.type === "clock" || data?.type === "histogram") {
-      return manualViewMode || "question";
-    }
-
-    if (manualViewMode) {
-      // If manual override is set, use it
-      // Allow clock, histogram, and spider/slides even without student data
-      if (
-        hasStudentData ||
-        manualViewMode === "clock" ||
-        manualViewMode === "histogram" ||
-        manualViewMode === "spider" ||
-        manualViewMode === "slides"
-      ) {
-        return manualViewMode;
-      }
-      // Invalid state: no student data but trying to show question - fall back to spider
-      return "spider";
-    }
-    // No manual override, use default
-    return hasStudentData ? "question" : "spider";
-  })();
-
-  // Show navigation tabs when no student is selected
-  if (!data || !question) {
-    const clockData = (VISUALIZATIONS["q4"]?.data as ClockData[]) || [];
-    const histogramData = (VISUALIZATIONS["q5"]?.data as HistogramData[]) || [];
-
-    return (
-      <div className="w-full h-full flex flex-col">
-        {/* Navigation Tabs */}
-        <div className="flex gap-2 p-4 border-b-2 border-chalk-white/20">
-          <button
-            onClick={() => setManualViewMode("spider")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-              viewMode === "spider"
-                ? "bg-chalk-yellow text-black font-semibold"
-                : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
-            }`}
-          >
-            <Radar size={18} />
-            <span>Radar Chart</span>
-          </button>
-          <button
-            onClick={() => setManualViewMode("clock")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-              viewMode === "clock"
-                ? "bg-chalk-yellow text-black font-semibold"
-                : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
-            }`}
-          >
-            <ClockIcon size={18} />
-            <span>Clock Chart</span>
-          </button>
-          <button
-            onClick={() => setManualViewMode("histogram")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-              viewMode === "histogram"
-                ? "bg-chalk-yellow text-black font-semibold"
-                : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
-            }`}
-          >
-            <BarChart3 size={18} />
-            <span>Histogram Chart</span>
-          </button>
-          <button
-            onClick={() => setManualViewMode("slides")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-              viewMode === "slides"
-                ? "bg-chalk-yellow text-black font-semibold"
-                : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
-            }`}
-          >
-            <BookOpen size={18} />
-            <span>Country Facts</span>
-          </button>
-        </div>
-
-        {/* Content Area */}
-        <div className="flex-1 min-h-0 relative">
-          <AnimatePresence mode="wait">
-            {viewMode === "spider" && (
-              <motion.div
-                key="spider"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0"
-              >
-                <SpiderRadarChart />
-              </motion.div>
-            )}
-            {viewMode === "clock" && (
-              <motion.div
-                key="clock"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="absolute inset-0"
-              >
-                <ClockChart
-                  data={clockData}
-                  title="School Day Schedules by Country"
-                  description="Select up to 3 countries to compare their school day schedules."
-                />
-              </motion.div>
-            )}
-            {viewMode === "histogram" && (
-              <motion.div
-                key="histogram"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 flex flex-col p-4"
-              >
-                <HistogramChart
-                  data={histogramData}
-                  filteredCountries={filteredCountries}
-                  selectedMetrics={selectedMetrics}
-                  sortBy={histogramSortBy}
-                  sortOrder={histogramSortOrder}
-                />
-              </motion.div>
-            )}
-            {viewMode === "slides" && (
-              <motion.div
-                key="slides"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0"
-              >
-                <SlideDeck />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-    );
-  }
-
-  // Handle clock visualization type
-  if (data.type === "clock") {
-    const clockData = data.data as ClockData[];
-    const histogramData = (VISUALIZATIONS["q5"]?.data as HistogramData[]) || [];
-
-    return (
-      <div className="w-full min-h-full flex flex-col">
-        {/* Navigation Tabs */}
-        <div className="flex gap-2 p-4 border-b-2 border-chalk-white/20">
-          <button
-            onClick={() => setManualViewMode("question")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-              viewMode === "question"
-                ? "bg-chalk-yellow text-black font-semibold"
-                : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
-            }`}
-          >
-            <ClockIcon size={18} />
-            <span>Clock Chart</span>
-          </button>
-          <button
-            onClick={() => setManualViewMode("spider")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-              viewMode === "spider"
-                ? "bg-chalk-yellow text-black font-semibold"
-                : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
-            }`}
-          >
-            <Radar size={18} />
-            <span>Radar Chart</span>
-          </button>
-          <button
-            onClick={() => setManualViewMode("histogram")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-              viewMode === "histogram"
-                ? "bg-chalk-yellow text-black font-semibold"
-                : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
-            }`}
-          >
-            <BarChart3 size={18} />
-            <span>Histogram Chart</span>
-          </button>
-          <button
-            onClick={() => setManualViewMode("slides")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-              viewMode === "slides"
-                ? "bg-chalk-yellow text-black font-semibold"
-                : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
-            }`}
-          >
-            <BookOpen size={18} />
-            <span>Country Facts</span>
-          </button>
-        </div>
-
-        {/* Content Area */}
-        <div className="flex-1 min-h-0 relative">
-          <AnimatePresence mode="wait">
-            {viewMode === "question" && (
-              <motion.div
-                key="clock"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="absolute inset-0"
-              >
-                <ClockChart
-                  data={clockData}
-                  title={question.text}
-                  description={question.description}
-                />
-              </motion.div>
-            )}
-            {viewMode === "spider" && (
-              <motion.div
-                key="spider"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="absolute inset-0"
-              >
-                <SpiderRadarChart
-                  maxCountries={3}
-                  title="Country Comparison Radar Chart"
-                  description="Select up to 3 countries to compare their percentile scores across multiple dimensions."
-                />
-              </motion.div>
-            )}
-            {viewMode === "clock" && (
-              <motion.div
-                key="clock"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="absolute inset-0"
-              >
-                <ClockChart
-                  data={clockData}
-                  title="School Day Schedules by Country"
-                  description="Select up to 3 countries to compare their school day schedules."
-                />
-              </motion.div>
-            )}
-            {viewMode === "histogram" && (
-              <motion.div
-                key="histogram"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 flex flex-col p-4"
-              >
-                <HistogramChart
-                  data={histogramData}
-                  filteredCountries={filteredCountries}
-                  selectedMetrics={selectedMetrics}
-                  sortBy={histogramSortBy}
-                  sortOrder={histogramSortOrder}
-                />
-              </motion.div>
-            )}
-            {viewMode === "slides" && (
-              <motion.div
-                key="slides"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="absolute inset-0"
-              >
-                <SlideDeck />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-    );
-  }
-
-  // Handle histogram visualization type
-  if (data.type === "histogram") {
-    const histogramData = data.data as HistogramData[];
-    const clockData = (VISUALIZATIONS["q4"]?.data as ClockData[]) || [];
-
-    return (
-      <div className="w-full min-h-full flex flex-col">
-        {/* Navigation Tabs */}
-        <div className="flex gap-2 p-4 border-b-2 border-chalk-white/20">
-          <button
-            onClick={() => setManualViewMode("question")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-              viewMode === "question"
-                ? "bg-chalk-yellow text-black font-semibold"
-                : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
-            }`}
-          >
-            <BarChart3 size={18} />
-            <span>Student Question</span>
-          </button>
-          <button
-            onClick={() => setManualViewMode("spider")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-              viewMode === "spider"
-                ? "bg-chalk-yellow text-black font-semibold"
-                : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
-            }`}
-          >
-            <Radar size={18} />
-            <span>Radar Chart</span>
-          </button>
-          <button
-            onClick={() => setManualViewMode("clock")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-              viewMode === "clock"
-                ? "bg-chalk-yellow text-black font-semibold"
-                : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
-            }`}
-          >
-            <ClockIcon size={18} />
-            <span>Clock Chart</span>
-          </button>
-          <button
-            onClick={() => setManualViewMode("slides")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-              viewMode === "slides"
-                ? "bg-chalk-yellow text-black font-semibold"
-                : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
-            }`}
-          >
-            <BookOpen size={18} />
-            <span>Country Facts</span>
-          </button>
-        </div>
-
-        {/* Content Area */}
-        <div className="flex-1 min-h-0 relative">
-        <AnimatePresence mode="wait">
-            {viewMode === "question" && (
-          <motion.div
-            key={question.id}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-                className="absolute inset-0"
-              >
-                <HistogramChart
-                  data={histogramData}
-                  filteredCountries={filteredCountries}
-                  selectedMetrics={selectedMetrics}
-                  sortBy={histogramSortBy}
-                  sortOrder={histogramSortOrder}
-                  title={question.text}
-                  description={question.description}
-                />
-              </motion.div>
-            )}
-            {viewMode === "spider" && (
-              <motion.div
-                key="spider"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="absolute inset-0"
-              >
-                <SpiderRadarChart
-                  maxCountries={3}
-                  title="Country Comparison Radar Chart"
-                  description="Select up to 3 countries to compare their percentile scores across multiple dimensions."
-                />
-              </motion.div>
-            )}
-            {viewMode === "clock" && (
-              <motion.div
-                key="clock"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="absolute inset-0"
-              >
-                <ClockChart
-                  data={clockData}
-                  title="School Day Schedules by Country"
-                  description="Select up to 3 countries to compare their school day schedules."
-                />
-              </motion.div>
-            )}
-            {viewMode === "slides" && (
-              <motion.div
-                key="slides"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="absolute inset-0"
-              >
-                <SlideDeck />
-          </motion.div>
-            )}
-        </AnimatePresence>
-        </div>
-      </div>
-    );
-  }
-
-  // Filter data for other chart types
-  const chartData = data.data.filter(
-    (d: any) =>
-      filteredCountries.length === 0 || filteredCountries.includes(d.country)
-  );
-
-  const renderChart = () => {
-    switch (data.type) {
-      case "bar":
-        return (
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={chartData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
-              <XAxis
-                dataKey="country"
-                stroke="#ffffff"
-                angle={-45}
-                textAnchor="end"
-                height={60}
-              />
-              <YAxis stroke="#ffffff" />
-              <RechartsTooltip
-                content={<CustomTooltip />}
-                cursor={{ fill: "transparent" }}
-              />
-              <Bar
-                dataKey="value"
-                name={data.yLabel}
-                fill="#81d4fa"
-                radius={[4, 4, 0, 0]}
-              >
-                {chartData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={["#81d4fa", "#ffeb3b", "#ef9a9a"][index % 3]}
-                  />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        );
-      case "scatter":
-        return (
-          <ResponsiveContainer width="100%" height="100%">
-            <ScatterChart margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
-              <XAxis
-                type="category"
-                dataKey="country"
-                name="Country"
-                stroke="#ffffff"
-              />
-              <YAxis
-                type="number"
-                dataKey="value"
-                name={data.yLabel}
-                stroke="#ffffff"
-              />
-              <ZAxis range={[100, 300]} />
-              <RechartsTooltip
-                content={<CustomTooltip />}
-                cursor={{ strokeDasharray: "3 3" }}
-              />
-              <Scatter name={data.title} data={chartData} fill="#ffeb3b">
-                {chartData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={["#81d4fa", "#ffeb3b", "#ef9a9a"][index % 3]}
-                  />
-                ))}
-              </Scatter>
-            </ScatterChart>
-          </ResponsiveContainer>
-        );
-      default:
-        return <div>Unsupported chart type</div>;
-    }
-  };
-
-  // For clock and histogram types, they're already handled above, so this is for bar/scatter types
-  // Show navigation tabs for student questions
   const clockData = (VISUALIZATIONS["q4"]?.data as ClockData[]) || [];
   const histogramData = (VISUALIZATIONS["q5"]?.data as HistogramData[]) || [];
 
   return (
     <div className="w-full h-full flex flex-col">
-      {/* Navigation Tabs for Student Questions */}
+      {/* Navigation Tabs */}
       <div className="flex gap-2 p-4 border-b-2 border-chalk-white/20">
         <button
-          onClick={() => setManualViewMode("question")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-            viewMode === "question"
-              ? "bg-chalk-yellow text-black font-semibold"
-              : "bg-transparent text-chalk-white/70 hover:text-chalk-white hover:bg-chalk-white/10"
-          }`}
-        >
-          <BarChart3 size={18} />
-          <span>Student Question</span>
-        </button>
-        <button
-          onClick={() => setManualViewMode("spider")}
+          onClick={() => setViewMode("spider")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
             viewMode === "spider"
               ? "bg-chalk-yellow text-black font-semibold"
@@ -605,7 +87,7 @@ export function Whiteboard({
           <span>Radar Chart</span>
         </button>
         <button
-          onClick={() => setManualViewMode("clock")}
+          onClick={() => setViewMode("clock")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
             viewMode === "clock"
               ? "bg-chalk-yellow text-black font-semibold"
@@ -616,7 +98,7 @@ export function Whiteboard({
           <span>Clock Chart</span>
         </button>
         <button
-          onClick={() => setManualViewMode("histogram")}
+          onClick={() => setViewMode("histogram")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
             viewMode === "histogram"
               ? "bg-chalk-yellow text-black font-semibold"
@@ -627,7 +109,7 @@ export function Whiteboard({
           <span>Histogram Chart</span>
         </button>
         <button
-          onClick={() => setManualViewMode("slides")}
+          onClick={() => setViewMode("slides")}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
             viewMode === "slides"
               ? "bg-chalk-yellow text-black font-semibold"
@@ -640,32 +122,8 @@ export function Whiteboard({
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 min-h-0 relative p-6">
-      <AnimatePresence mode="wait">
-          {viewMode === "question" && (
-        <motion.div
-          key={question.id}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
-              className="flex-1 flex flex-col h-full"
-        >
-          <div className="mb-6 border-b-2 border-white/20 pb-4 flex-shrink-0">
-            <h2 className="text-3xl text-chalk-white font-bold mb-2">
-              {question.text}
-            </h2>
-            <p className="text-lg text-chalk-white/70 italic">
-              {question.description}
-            </p>
-          </div>
-
-          <div className="flex-1 min-h-0 relative">{renderChart()}</div>
-
-          <div className="mt-4 text-center text-sm text-chalk-white/40 flex-shrink-0">
-            Source: PISA 2022 (Mock Data)
-          </div>
-        </motion.div>
-          )}
+      <div className="flex-1 min-h-0 relative">
+        <AnimatePresence mode="wait">
           {viewMode === "spider" && (
             <motion.div
               key="spider"
@@ -721,7 +179,7 @@ export function Whiteboard({
               <SlideDeck />
             </motion.div>
           )}
-      </AnimatePresence>
+        </AnimatePresence>
       </div>
     </div>
   );

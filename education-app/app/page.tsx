@@ -13,7 +13,7 @@ export default function Home() {
         
         <p className="text-2xl mb-8 text-chalk-white/90 font-light leading-relaxed">
           Welcome to class! Step inside to explore how education systems compare around the world.
-          Click on students to hear their questions and discover data on the whiteboard.
+          Explore visualizations and data on the whiteboard using the navigation tabs.
         </p>
         
         <Link href="/classroom">

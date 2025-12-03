@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Question, VisualizationData } from "@/lib/types";
 import { Whiteboard } from "@/components/classroom/Whiteboard";
 import { FilterPanel } from "@/components/classroom/FilterPanel";
 import { Notebook } from "@/components/classroom/Notebook";
@@ -32,9 +31,6 @@ export default function ClassroomPage() {
     }
   };
 
-  // No student selection - show default view
-  const currentQuestion: Question | null = null;
-  const currentData: VisualizationData | null = null;
   const isHistogram = false;
 
   const handleMetricToggle = (metric: string) => {
@@ -71,8 +67,6 @@ export default function ClassroomPage() {
         {/* Chalk tray */}
         <div className="absolute bottom-0 w-full h-4 bg-[#8d6e63] opacity-50 pointer-events-none z-20"></div>
         <Whiteboard
-          data={currentData}
-          question={currentQuestion}
           filteredCountries={selectedCountries}
           selectedMetrics={selectedMetrics}
           histogramSortBy={histogramSortBy}

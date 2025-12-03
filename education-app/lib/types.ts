@@ -1,11 +1,3 @@
-export interface Student {
-  id: string;
-  name: string;
-  avatar: string; // Path to SVG or image
-  questionId: string;
-  position: { top: string; left: string };
-}
-
 export interface Question {
   id: string;
   text: string;

@@ -1,35 +1,4 @@
-import { Student, Question, VisualizationData } from './types';
-
-export const STUDENTS: Student[] = [
-  {
-    id: 's1',
-    name: 'Alice',
-    avatar: '/avatars/student1.svg',
-    questionId: 'q1',
-    position: { top: '85%', left: '20%' },
-  },
-  {
-    id: 's2',
-    name: 'Bob',
-    avatar: '/avatars/student2.svg',
-    questionId: 'q2',
-    position: { top: '85%', left: '40%' },
-  },
-  {
-    id: 's3',
-    name: 'Charlie',
-    avatar: '/avatars/student3.svg',
-    questionId: 'q3',
-    position: { top: '85%', left: '60%' },
-  },
-  {
-    id: 's5',
-    name: 'Emma',
-    avatar: '/avatars/student1.svg',
-    questionId: 'q5',
-    position: { top: '85%', left: '80%' },
-  },
-];
+import { Question, VisualizationData } from './types';
 
 export const QUESTIONS: Question[] = [
   {
