@@ -232,7 +232,7 @@ export function SpiderRadarChart({
                 backdropColor: 'rgba(0,0,0,0)',
                 stepSize: 20,
                 callback(value: number | string) {
-                  return typeof value === 'number' ? value.toFixed(0) + '%' : value + '%';
+                  return typeof value === 'number' ? value.toFixed(0) + 'th' : value + 'th';
                 },
               },
             },
