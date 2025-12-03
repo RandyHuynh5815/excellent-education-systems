@@ -255,7 +255,7 @@ export default function Home() {
               </h1>
               
               {/* Text area with eraser animation */}
-              <div className="relative min-h-[80px] mb-8 max-w-2xl">
+              <div className="relative min-h-[80px] mb-4 max-w-2xl">
                 {/* Original text - visible in step 1 and during erasing */}
                 {(step === 1 || isErasing) && (
                   <div className="relative overflow-hidden">
