@@ -355,10 +355,12 @@ export function SpiderRadarChart({
     });
   }
 
-  // Get available countries from loaded data
-  const availableCountries = countries.filter(country => 
-    dataByCountry[country] && Object.keys(dataByCountry[country]).length > 0
-  );
+  // Get available countries from loaded data, sorted alphabetically
+  const availableCountries = countries
+    .filter(country => 
+      dataByCountry[country] && Object.keys(dataByCountry[country]).length > 0
+    )
+    .sort();
 
   if (error) {
     return (

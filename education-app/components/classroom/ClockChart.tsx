@@ -20,8 +20,8 @@ export function ClockChart({
 }: ClockChartProps) {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
 
-  // Get available countries from data
-  const availableCountries = data.map((d) => d.country);
+  // Get available countries from data, sorted alphabetically
+  const availableCountries = Array.from(new Set(data.map((d) => d.country))).sort();
 
   function handleCountryToggle(country: string) {
     setSelectedCountries((current) => {
@@ -94,20 +94,6 @@ export function ClockChart({
           })
         )}
       </div>
-
-      {/* Selected Countries Display */}
-      {selectedCountries.length > 0 && (
-        <div className="mb-4 text-center">
-          <p className="text-chalk-white/80 text-base mb-2">
-            Selected: {selectedCountries.join(", ")}
-          </p>
-          <p className="text-chalk-white/50 text-sm">
-            {selectedCountries.length < MAX_COUNTRIES
-              ? `Select up to ${MAX_COUNTRIES - selectedCountries.length} more`
-              : "Maximum countries selected"}
-          </p>
-        </div>
-      )}
 
       {/* Clock Display */}
       <AnimatePresence mode="wait">
