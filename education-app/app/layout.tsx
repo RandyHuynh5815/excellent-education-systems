@@ -24,9 +24,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${patrickHand.variable} ${openSans.variable} antialiased font-patrick`}
+        suppressHydrationWarning
       >
         {children}
       </body>

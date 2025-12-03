@@ -20,7 +20,7 @@ interface FilterPanelProps {
   onHistogramSortOrderChange?: (order: 'asc' | 'desc') => void;
 }
 
-const COUNTRIES = ['Finland', 'USA', 'Japan', 'Korea', 'Brazil', 'Singapore', 'Cambodia', 'Canada', 'France', 'Italy', 'UK', 'Jordan'];
+const COUNTRIES = ['USA', 'Japan', 'Finland', 'Singapore', 'Brazil', 'Cambodia'];
 const SUBJECTS = ['Math', 'Reading', 'Science', 'General'];
 const HISTOGRAM_METRICS = ['BELONG', 'BULLIED', 'FEELSAFE'];
 
