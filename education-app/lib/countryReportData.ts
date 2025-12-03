@@ -1,83 +1,86 @@
+import Papa from 'papaparse';
+
 export type CountryId = "US" | "Finland" | "Cambodia" | "Singapore" | "Japan" | "Brazil";
 
 export interface CountryEducationStats {
   id: CountryId;
   name: string;
-  mathScore: number;        // e.g. average math score
-  escs: number;             // index of economic, social and cultural status (-3 to 3 approx)
-  hisei: number;            // parental education level (0-100 approx)
-  hise_i: number;           // parental occupational status (0-90 approx)
-  senseOfBelonging: number; // 0–100 (derived or raw scale)
-  bullying: number;         // 0–100 (higher = more bullying)
-  feelsSafe: number;        // 0–100 (higher = feels safer)
+  mathScore: number;        // math_score (~300-600)
+  escs: number;             // ESCS (~ -2.5 to 1.5)
+  hisei: number;            // HISEI (Highest Parental Occupation Status, ~20-90)
+  hisced: number;           // HISCED (Highest Parental Education Level, 0-6 PISA scale)
+  senseOfBelonging: number; // sense_of_belonging (Index, ~ -0.5 to 0.5)
+  bullying: number;         // bullying (Index, ~ -1.5 to 0) - Lower is better/less bullying
+  feelsSafe: number | null; // feeling_safe (Index, ~ -1 to 1) - Higher is better
 }
 
-export const COUNTRY_STATS: CountryEducationStats[] = [
+// Fallback Mock Data (Approximated from CSV for initial state)
+const DEFAULT_COUNTRY_STATS: CountryEducationStats[] = [
   {
     id: "US",
     name: "United States",
-    mathScore: 478,
-    escs: 0.12,
-    hisei: 75,
-    hise_i: 65,
-    senseOfBelonging: 0.15, // Standardized 
-    bullying: 0.25,        // Standardized (0-1 approx range in PISA index) or raw
-    feelsSafe: 80,
+    mathScore: 465,
+    escs: 0.16,
+    hisei: 60,
+    hisced: 6,
+    senseOfBelonging: -0.26, 
+    bullying: -0.29,        
+    feelsSafe: -0.20,
   },
   {
     id: "Finland",
     name: "Finland",
-    mathScore: 500, // Roughly PISA 2018/2022 range
-    escs: 0.35,
-    hisei: 78,
-    hise_i: 70,
-    senseOfBelonging: 0.20,
-    bullying: 0.15,
-    feelsSafe: 90,
+    mathScore: 484, 
+    escs: 0.30,
+    hisei: 56,
+    hisced: 6,
+    senseOfBelonging: 0.08,
+    bullying: -0.39,
+    feelsSafe: 0.34,
   },
   {
     id: "Cambodia",
     name: "Cambodia",
-    mathScore: 340, // Mock value, PISA-D
-    escs: -1.2,
-    hisei: 40,
-    hise_i: 35,
-    senseOfBelonging: 0.40,
-    bullying: 0.45,
-    feelsSafe: 60,
+    mathScore: 337, 
+    escs: -2.0,
+    hisei: 30,
+    hisced: 3.4,
+    senseOfBelonging: -0.45,
+    bullying: -0.09,
+    feelsSafe: -0.57,
   },
   {
     id: "Singapore",
     name: "Singapore",
     mathScore: 575,
-    escs: 0.55,
-    hisei: 80,
-    hise_i: 72,
-    senseOfBelonging: 0.25,
-    bullying: 0.20,
-    feelsSafe: 92,
+    escs: 0.48,
+    hisei: 70,
+    hisced: 6,
+    senseOfBelonging: -0.34,
+    bullying: -0.21,
+    feelsSafe: 0.44,
   },
   {
     id: "Japan",
     name: "Japan",
     mathScore: 536,
-    escs: 0.05,
-    hisei: 74,
-    hise_i: 68,
-    senseOfBelonging: -0.20, // Lower sense of belonging in some PISA reports
-    bullying: 0.30,
-    feelsSafe: 85,
+    escs: 0.03,
+    hisei: 57,
+    hisced: 6,
+    senseOfBelonging: 0.24, 
+    bullying: -0.73,
+    feelsSafe: null, 
   },
   {
     id: "Brazil",
     name: "Brazil",
     mathScore: 379,
-    escs: -0.80,
-    hisei: 50,
-    hise_i: 45,
-    senseOfBelonging: 0.30,
-    bullying: 0.35,
-    feelsSafe: 50,
+    escs: -0.98,
+    hisei: 42,
+    hisced: 5.0,
+    senseOfBelonging: -0.20,
+    bullying: -0.15,
+    feelsSafe: -0.40,
   },
 ];
 
@@ -88,31 +91,57 @@ export function normalize(value: number, min: number, max: number) {
 
 // Helper to calculate composite score
 export function calculateCompositeScore(stats: CountryEducationStats): number {
-  // Normalize each metric roughly to a 0-100 scale or z-score equivalent for equal weighting.
-  // Using simplified normalization based on typical ranges in this mock dataset.
+  // Ranges observed in data:
+  // Math: 326 - 582 -> Range ~256
+  // ESCS: -2.1 - 0.48 -> Range ~2.6
+  // HISEI: 24 - 70 -> Range ~46
+  // HISCED: 3.4 - 6.0 -> Range ~2.6
+  // Belonging: -0.44 - 0.24 -> Range ~0.68
+  // Safe: -0.76 - 0.69 -> Range ~1.45
+  // Bullying: -1.23 - -0.09 -> Range ~1.14 (Note: PISA bullying index is often negative = less bullying, or standardized)
   
-  // Weights (can be adjusted)
-  const wMath = 1;
-  const wEscs = 20; // escs is approx -1.5 to 1.5, so x20 brings it to ~30 range
-  const wHisei = 0.5; // 0-90 -> ~45
-  const wBelonging = 25; // -0.5 to 0.5 -> ~12.5 range, boost it
-  const wSafe = 0.5; // 0-100 -> 50 range
-  const wBullying = 25; // 0-1 approx -> 25 range
-
-  const positiveScore = 
-    (stats.mathScore * 0.1) + // e.g. 500 -> 50
-    (stats.escs * 10) +       // e.g. 0.5 -> 5
-    (stats.hisei * 0.5) +     // e.g. 80 -> 40
-    (stats.senseOfBelonging * 20) + // e.g. 0.2 -> 4
-    (stats.feelsSafe * 0.5);  // e.g. 90 -> 45
+  // Normalization logic:
+  // We want each factor to contribute roughly equally to a 0-100 scale score.
   
-  const negativeScore = stats.bullying * 50; // higher bullying subtracts more
+  // Math (0-100 contribution): 
+  // (Val - 300) / 300 * 25 (weight) -> 300=0, 600=25pts
+  const scoreMath = ((stats.mathScore - 300) / 300) * 25; 
 
-  return positiveScore - negativeScore;
+  // Socio-Economic (ESCS + HISEI + HISCED combined ~ 25 pts)
+  // ESCS: (-2 to 1) -> normalized 0-1 * 10pts
+  const scoreEscs = ((stats.escs + 2.5) / 3.5) * 10;
+  
+  // HISEI: (20 to 80) -> normalized 0-1 * 7.5pts
+  const scoreHisei = ((stats.hisei - 20) / 60) * 7.5;
+
+  // HISCED: (0 to 6) -> normalized 0-1 * 7.5pts
+  const scoreHisced = ((stats.hisced - 0) / 6) * 7.5;
+
+  // Well-being (Belonging + Safety ~ 25 pts)
+  // Belonging: (-0.5 to 0.5) -> normalized 0-1 * 12.5pts
+  const scoreBelong = ((stats.senseOfBelonging + 0.5) / 1.0) * 12.5;
+
+  // Safety: (-1 to 1) -> normalized 0-1 * 12.5pts
+  // Handle missing Japan safe data (neutral 0 score -> 0.5 normalized)
+  const safeVal = stats.feelsSafe !== null ? stats.feelsSafe : 0;
+  const scoreSafe = ((safeVal + 1) / 2) * 12.5;
+
+  // Bullying (Negative impact, ~25 pts)
+  // Range -1.3 (good) to 0 (bad). 
+  // We want LOW bullying (more negative) to be GOOD.
+  // Normalized "Badness" 0-1: (Val - (-1.5)) / 1.5. 
+  // -1.5 -> 0 badness. 0 -> 1 badness.
+  const scoreBullyBadness = ((stats.bullying + 1.5) / 1.5) * 25;
+
+  // Total Score = Positives - Negative Impact
+  const total = (scoreMath + scoreEscs + scoreHisei + scoreHisced + scoreBelong + scoreSafe) - scoreBullyBadness;
+
+  return total;
 }
 
-export function getRankedCountries() {
-  const scored = COUNTRY_STATS.map(c => ({
+export function getRankedCountries(stats: CountryEducationStats[] = DEFAULT_COUNTRY_STATS) {
+  const dataToUse = stats && stats.length > 0 ? stats : DEFAULT_COUNTRY_STATS;
+  const scored = dataToUse.map(c => ({
     ...c,
     composite: calculateCompositeScore(c)
   }));
@@ -126,3 +155,40 @@ export function getRankedCountries() {
   };
 }
 
+// Async loader for client-side
+export async function fetchCountryStats(): Promise<CountryEducationStats[]> {
+  try {
+    const response = await fetch('/country_education_summary.csv');
+    const text = await response.text();
+    
+    const result = Papa.parse(text, {
+      header: true,
+      dynamicTyping: true,
+      skipEmptyLines: true
+    });
+
+    const data = result.data as any[];
+    
+    return data.map((row: any) => {
+      // Map 'country' to CountryId if strictly typed, or just string
+      // Our CSV has "US", "Finland", etc.
+      return {
+        id: row.country as CountryId,
+        name: row.country === 'US' ? 'United States' : row.country,
+        mathScore: row.math_score,
+        escs: row.ESCS,
+        hisei: row.HISEI,
+        hisced: row.HISCED, // New Field
+        senseOfBelonging: row.sense_of_belonging,
+        bullying: row.bullying,
+        feelsSafe: (row.feeling_safe === "" || row.feeling_safe === null) ? null : Number(row.feeling_safe)
+      };
+    });
+  } catch (error) {
+    console.error("Failed to fetch CSV data:", error);
+    return DEFAULT_COUNTRY_STATS;
+  }
+}
+
+// Export default stats for immediate use
+export const COUNTRY_STATS = DEFAULT_COUNTRY_STATS;
