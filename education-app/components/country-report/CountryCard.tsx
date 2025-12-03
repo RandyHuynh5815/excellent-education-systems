@@ -15,10 +15,10 @@ function getCountryFlagPath(country: string): string {
 }
 
 const TOOLTIPS: Record<string, string> = {
-  "Math Score": "Average score on the PISA mathematics assessment (mean ~500).",
+  "Math Score": "Median score on the PISA mathematics assessment.",
   "Socio-Econ Status (ESCS)": "Index of Economic, Social and Cultural Status. Higher values indicate higher socioeconomic background.",
-  "Parent Education (HISEI)": "Highest International Socio-Economic Index of Occupational Status. A proxy for parental education/status.",
-  "Parent Education Lvl (HISCED)": "Highest ISCED level of parents. A standard classification of education levels (0-6 scale).",
+  "Parent Occupation (HISEI)": "Highest International Socio-Economic Index of Occupational Status (0-90 scale). Based on parental occupation.",
+  "Parent Education Lvl (HISCED)": "Highest ISCED level of parents. A standard classification of education levels.",
   "Sense of Belonging": "Index of students' reported feeling of acceptance and inclusion at school.",
   "Feeling Safe": "Percentage/Index of students who report feeling safe at school.",
   "Bullying Index": "Composite index of exposure to bullying. Higher values mean more frequent bullying.",
@@ -123,7 +123,7 @@ export function CountryCard({ country }: CountryCardProps) {
           displayValue={country.escs.toFixed(2)}
         />
         <Indicator
-          label="Parent Education (HISEI)"
+          label="Parent Occupation (HISEI)"
           value={country.hisei}
           min={20} max={80}
         />
