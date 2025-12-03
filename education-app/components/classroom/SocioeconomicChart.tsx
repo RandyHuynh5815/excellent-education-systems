@@ -19,9 +19,6 @@
  *    status and academic performance. Students are split into Low ESCS (Q1) and High ESCS (Q4)
  *    groups to clearly demonstrate the "resource gap" in education outcomes.
  * 
- * 3. Area Distribution Chart - Visualizes how students are distributed across the
- *    ESCS spectrum in each country, revealing socioeconomic inequality patterns.
- * 
  * KEY INDICATORS (from PISA 2022):
  * - ESCS: Economic, Social and Cultural Status index (composite measure)
  * - HISCED: Highest level of parental education (ISCED scale 0-8)
@@ -37,7 +34,6 @@
  *   4. Split students into quartiles by ESCS per country
  *   5. Low ESCS Math = average Math score of bottom 25% (Q1) students
  *   6. High ESCS Math = average Math score of top 25% (Q4) students
- *   7. Generated ESCS distribution histograms (15 bins per country)
  * 
  * - Sample sizes after cleaning:
  *   Brazil: 10,334 students | Cambodia: 5,274 students | Finland: 9,931 students
@@ -52,8 +48,8 @@
  *   * Japan: 84 pts
  *   * Brazil: 77 pts
  *   * Cambodia: 15 pts (lowest inequality, but overall lowest scores)
- * - Developed countries (Finland, Japan, Singapore) show higher baseline ESCS
- * - Developing countries (Brazil, Cambodia) show more left-skewed ESCS distributions
+ * - Developed countries (Finland, Japan, Singapore) show higher baseline scores
+ * - Developing countries (Brazil, Cambodia) show lower overall performance
  * =============================================================================
  */
 
@@ -68,8 +64,6 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  ComposedChart,
-  Area,
 } from "recharts";
 import { SocioeconomicData } from "@/lib/types";
 import Image from "next/image";
@@ -138,7 +132,7 @@ const CONTINENT_PATHS = {
 export function SocioeconomicChart({
   data,
   title = "Family Background: The Resources Students Bring to School",
-  description = "Compare socioeconomic status (ESCS) and its impact on Math performance across countries.",
+  description = "Compare how socioeconomic status (ESCS) impacts Math scores. Select countries to see the 'resource gap' between low and high ESCS students.",
 }: SocioeconomicChartProps) {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
@@ -172,28 +166,6 @@ export function SocioeconomicChart({
       };
     });
   }, [selectedCountries]);
-
-  // Prepare histogram data for ESCS distribution
-  const histogramData = useMemo(() => {
-    if (selectedCountries.length === 0) return [];
-    
-    const allBins: Record<string, Record<string, number>> = {};
-    
-    selectedCountries.forEach((country) => {
-      const countryData = data.find((d) => d.country === country);
-      if (countryData?.escsDistribution) {
-        countryData.escsDistribution.forEach((bin) => {
-          const binKey = `${bin.binStart.toFixed(2)}`;
-          if (!allBins[binKey]) {
-            allBins[binKey] = { binStart: bin.binStart, binEnd: bin.binEnd };
-          }
-          allBins[binKey][country] = bin.count;
-        });
-      }
-    });
-    
-    return Object.values(allBins).sort((a, b) => (a.binStart as number) - (b.binStart as number));
-  }, [selectedCountries, data]);
 
   // Get selected country data for stats
   const selectedCountryData = useMemo(() => {
@@ -367,7 +339,7 @@ export function SocioeconomicChart({
                 className="flex-1 flex flex-col gap-3 min-h-0"
               >
                 {/* ESCS Impact on Math Scores - Grouped Bar Chart */}
-                <div className="h-40 flex-shrink-0">
+                <div className="flex-1 min-h-[200px]">
                   <h4 className="text-sm font-semibold text-chalk-white mb-1 text-center">
                     Math Scores by Socioeconomic Status (ESCS)
                   </h4>
@@ -406,77 +378,6 @@ export function SocioeconomicChart({
                       <Bar dataKey="Low ESCS (Q1)" fill="#ef4444" radius={[4, 4, 0, 0]} />
                       <Bar dataKey="High ESCS (Q4)" fill="#22c55e" radius={[4, 4, 0, 0]} />
                     </BarChart>
-                  </ResponsiveContainer>
-                </div>
-
-                {/* ESCS Distribution Histogram */}
-                <div className="flex-1 min-h-[140px]">
-                  <h4 className="text-sm font-semibold text-chalk-white mb-1 text-center">
-                    ESCS Distribution (Student Count)
-                  </h4>
-                  <ResponsiveContainer width="100%" height="95%">
-                    <ComposedChart
-                      data={histogramData}
-                      margin={{ top: 10, right: 20, left: 20, bottom: 25 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                      <XAxis
-                        dataKey="binStart"
-                        tick={{ fill: "#fcfcfc", fontSize: 9 }}
-                        tickFormatter={(value) => value.toFixed(1)}
-                        label={{
-                          value: "ESCS Index (Low ← → High)",
-                          position: "bottom",
-                          fill: "#fcfcfc",
-                          fontSize: 10,
-                          offset: 10,
-                        }}
-                      />
-                      <YAxis
-                        tick={{ fill: "#fcfcfc", fontSize: 9 }}
-                        width={40}
-                        label={{
-                          value: "Students",
-                          angle: -90,
-                          position: "insideLeft",
-                          fill: "#fcfcfc",
-                          fontSize: 10,
-                          offset: 5,
-                        }}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "rgba(0, 0, 0, 0.9)",
-                          border: "1px solid rgba(255, 255, 255, 0.2)",
-                          borderRadius: "8px",
-                          color: "#fcfcfc",
-                          fontSize: "11px",
-                        }}
-                        formatter={(value: number, name: string) => [
-                          value.toLocaleString() + " students",
-                          name === "United States" ? "USA" : name,
-                        ]}
-                        labelFormatter={(label) => `ESCS: ${Number(label).toFixed(2)}`}
-                      />
-                      <Legend
-                        wrapperStyle={{ fontSize: "11px", paddingTop: "4px" }}
-                        formatter={(value) => (value === "United States" ? "USA" : value)}
-                      />
-                      {selectedCountries.map((country, index) => (
-                        <Area
-                          key={country}
-                          type="monotone"
-                          dataKey={country}
-                          stroke={COUNTRY_COLORS[country]}
-                          fill={COUNTRY_COLORS[country]}
-                          fillOpacity={0.3}
-                          strokeWidth={2}
-                          name={country}
-                          animationDuration={500}
-                          animationBegin={index * 100}
-                        />
-                      ))}
-                    </ComposedChart>
                   </ResponsiveContainer>
                 </div>
 
