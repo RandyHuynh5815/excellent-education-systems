@@ -35,22 +35,18 @@ const MAX_COUNTRIES = 6;
 
 export function HistogramChart({
   data,
-  filteredCountries: externalFilteredCountries,
   selectedMetrics,
-  sortBy: externalSortBy,
-  sortOrder: externalSortOrder,
-  title = "Student Well-being Metrics by Country",
-  description = "Compare BELONG, BULLIED, and FEELSAFE values across selected countries.",
+  title = "Mental Health and Well Being",
+  description = "Compare 3 measurements of a student's well being (bullying, feel safe, belonging) across countries.",
 }: HistogramChartProps) {
   // Get available countries from data first
   const availableCountries = useMemo(() => {
     return Array.from(new Set(data.map((d) => d.country))).sort();
   }, [data]);
 
-  // Internal state for country filter - initialize empty, will be set in useEffect
-  const [internalFilteredCountries, setInternalFilteredCountries] = useState<
-    string[]
-  >([]);
+  // Internal state for country filter - initialize with first 3 countries
+  const [internalFilteredCountries, setInternalFilteredCountries] =
+    useState<string[]>(() => availableCountries.slice(0, MAX_COUNTRIES));
   const [internalSortBy, setInternalSortBy] = useState<string>("none");
   const [internalSortOrder, setInternalSortOrder] = useState<"asc" | "desc">(
     "asc"
@@ -64,17 +60,17 @@ export function HistogramChart({
   const sortOrder = internalSortOrder;
 
   // Update internal state when availableCountries changes (e.g., data prop changes)
-  // Initialize with first 3 countries (or all if less than 3) if state is empty
+  // Only update if current selection is empty
   useEffect(() => {
-    if (availableCountries.length > 0) {
-      // Initialize with first 3 countries on first load
-      if (internalFilteredCountries.length === 0) {
+    if (availableCountries.length > 0 && internalFilteredCountries.length === 0) {
+      // Use a callback to avoid synchronous setState warning
+      queueMicrotask(() => {
         setInternalFilteredCountries(
           availableCountries.slice(0, MAX_COUNTRIES)
         );
-      }
+      });
     }
-  }, [availableCountries]);
+  }, [availableCountries, internalFilteredCountries.length]);
 
   // Filter by countries
   const filteredData = useMemo(() => {
@@ -137,7 +133,7 @@ export function HistogramChart({
 
     // Now filter out metrics that aren't selected (after sorting)
     return processed.map((item) => {
-      const filtered: Record<string, any> = { country: item.country };
+      const filtered: Record<string, number | string | null> = { country: item.country };
       if (metricsSet.has("BELONG")) {
         filtered.BELONG = item.BELONG;
       }
@@ -159,25 +155,23 @@ export function HistogramChart({
   }, [selectedMetrics]);
 
   return (
-    <div className="w-full h-full flex flex-col p-6 relative pointer-events-auto overflow-y-auto">
+    <div className="w-full h-full flex flex-col p-6 relative pointer-events-auto overflow-y-auto font-patrick">
       {/* Title and Description */}
       {title && (
-        <div className="mb-4 border-b-2 border-white/20 pb-3">
-          <h2 className="text-2xl text-chalk-white font-bold mb-1">{title}</h2>
+        <div className="mb-3 border-b-2 border-white/20 pb-2">
+          <h2 className="text-3xl text-chalk-white font-bold mb-2">{title}</h2>
+          {description && (
+            <p className="text-base text-chalk-white/70 italic">{description}</p>
+          )}
         </div>
-      )}
-      {description && (
-        <p className="text-base text-chalk-white/70 italic mb-4 text-center">
-          {description}
-        </p>
       )}
 
       {/* Filters and Sort - Side by Side */}
       <div className="mb-4 flex flex-col md:flex-row gap-4 items-start md:items-center">
         {/* Country Filter Buttons */}
         <div className="flex-1 w-full md:w-auto">
-          <h3 className="text-lg text-chalk-white font-semibold mb-2">
-            Filter Countries
+          <h3 className="text-sm font-semibold text-chalk-white mb-2">
+            Filter Countries (6 max)
           </h3>
           <div className="flex flex-wrap gap-3 justify-center md:justify-start">
             {availableCountries.length === 0 ? (
@@ -288,11 +282,11 @@ export function HistogramChart({
                 strokeDasharray="3 3"
                 stroke="rgba(255,255,255,0.1)"
               />
-              <XAxis type="number" tick={{ fill: "#fcfcfc", fontSize: 20 }} />
+              <XAxis type="number" tick={{ fill: "#fcfcfc", fontSize: 10, fontFamily: 'var(--font-patrick), "Patrick Hand", "Comic Sans MS", cursive' }} />
               <YAxis
                 type="category"
                 dataKey="country"
-                tick={{ fill: "#fcfcfc", fontSize: 25 }}
+                tick={{ fill: "#fcfcfc", fontSize: 16, fontFamily: 'var(--font-patrick), "Patrick Hand", "Comic Sans MS", cursive' }}
                 width={70}
               />
               <Tooltip
@@ -302,7 +296,7 @@ export function HistogramChart({
                   borderRadius: "8px",
                   color: "#fcfcfc",
                 }}
-                formatter={(value: any) => {
+                formatter={(value) => {
                   if (value == null || value === undefined) {
                     return "N/A";
                   }
@@ -310,7 +304,7 @@ export function HistogramChart({
                 }}
               />
               <Legend
-                wrapperStyle={{ color: "#fcfcfc", fontSize: "25px" }}
+                wrapperStyle={{ color: "#fcfcfc", fontSize: "14px", fontFamily: 'var(--font-patrick), "Patrick Hand", "Comic Sans MS", cursive' }}
                 iconType="square"
               />
               {metricsSet.has("BELONG") && (

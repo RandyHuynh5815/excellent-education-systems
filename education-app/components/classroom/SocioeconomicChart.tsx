@@ -79,8 +79,8 @@ const CONTINENT_PATHS = {
 
 export function SocioeconomicChart({
   data,
-  title = "Family Background: The Resources Students Bring to School",
-  description = "Compare how socioeconomic status (ESCS) impacts Math scores. Select countries to see the 'resource gap' between low and high ESCS students.",
+  title = "Family Socioeconomic Status",
+  description = "Compare how students with a lower/higher socioeconomic status affects their math performance. The red bar indicates the math score correlated to students in the 1st quartile in socioeconomic status. The green bar indicates the math score correlated to students in the 4th quartile in socioeconomic status.",
 }: SocioeconomicChartProps) {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
@@ -125,13 +125,13 @@ export function SocioeconomicChart({
   }, [selectedCountries, data]);
 
   return (
-    <div className="w-full h-full flex flex-col p-4 relative pointer-events-auto overflow-y-auto">
+    <div className="w-full h-full flex flex-col p-4 relative pointer-events-auto overflow-y-auto font-patrick">
       {/* Header */}
       {title && (
         <div className="mb-3 border-b-2 border-white/20 pb-2">
-          <h2 className="text-2xl text-chalk-white font-bold mb-1">{title}</h2>
+          <h2 className="text-3xl text-chalk-white font-bold mb-2">{title}</h2>
           {description && (
-            <p className="text-sm text-chalk-white/70 italic">{description}</p>
+            <p className="text-base text-chalk-white/70 italic">{description}</p>
           )}
         </div>
       )}
@@ -226,12 +226,12 @@ export function SocioeconomicChart({
                   onClick={() => !isDisabled && handleCountryToggle(country)}
                   disabled={isDisabled}
                   className={`
-                    flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-sm font-medium transition-all
+                    flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-sm font-semibold transition-all
                     ${isSelected
                       ? "shadow-lg"
                       : isDisabled
-                      ? "bg-transparent text-chalk-white/30 border-chalk-white/10 cursor-not-allowed"
-                      : "bg-black/20 text-chalk-white border-chalk-white/30 hover:border-chalk-white/60 hover:bg-white/10"
+                      ? "bg-transparent text-chalk-white/30 border-chalk-white/20 cursor-not-allowed"
+                      : "bg-transparent text-chalk-white border-chalk-white/40 hover:border-chalk-blue hover:text-chalk-blue hover:bg-white/5 cursor-pointer"
                     }
                   `}
                   style={{
@@ -299,10 +299,10 @@ export function SocioeconomicChart({
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                       <XAxis
                         dataKey="country"
-                        tick={{ fill: "#fcfcfc", fontSize: 11 }}
+                        tick={{ fill: "#fcfcfc", fontSize: 11, fontFamily: 'var(--font-patrick), "Patrick Hand", "Comic Sans MS", cursive' }}
                       />
                       <YAxis
-                        tick={{ fill: "#fcfcfc", fontSize: 10 }}
+                        tick={{ fill: "#fcfcfc", fontSize: 10, fontFamily: 'var(--font-patrick), "Patrick Hand", "Comic Sans MS", cursive' }}
                         domain={[250, 650]}
                         label={{
                           value: "Math Score",
@@ -310,6 +310,7 @@ export function SocioeconomicChart({
                           position: "insideLeft",
                           fill: "#fcfcfc",
                           fontSize: 10,
+                          fontFamily: 'var(--font-patrick), "Patrick Hand", "Comic Sans MS", cursive',
                         }}
                       />
                       <Tooltip
@@ -319,10 +320,34 @@ export function SocioeconomicChart({
                           borderRadius: "8px",
                           color: "#fcfcfc",
                           fontSize: "12px",
+                          fontFamily: 'var(--font-patrick), "Patrick Hand", "Comic Sans MS", cursive',
                         }}
                         formatter={(value: number, name: string) => [value.toFixed(1), name]}
                       />
-                      <Legend wrapperStyle={{ fontSize: "11px" }} />
+                      <Legend 
+                        wrapperStyle={{ fontSize: "11px", fontFamily: 'var(--font-patrick), "Patrick Hand", "Comic Sans MS", cursive' }}
+                        content={({ payload }) => {
+                          if (!payload || !payload.length) return null;
+                          // Reorder: Low first, then High
+                          const reordered = [...payload].sort((a, b) => {
+                            if (a.value === "Low ESCS (Q1)") return -1;
+                            if (b.value === "Low ESCS (Q1)") return 1;
+                            return 0;
+                          });
+                          return (
+                            <ul className="recharts-legend-wrapper" style={{ display: 'flex', justifyContent: 'center', padding: 0, margin: 0 }}>
+                              {reordered.map((entry, index) => (
+                                <li key={`item-${index}`} className="recharts-legend-item" style={{ display: 'inline-block', marginRight: '10px' }}>
+                                  <svg className="recharts-surface" width="14" height="14" viewBox="0 0 14 14" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }}>
+                                    <path fill={entry.color} d="M0,0h14v14h-14z" className="recharts-legend-icon" />
+                                  </svg>
+                                  <span className="recharts-legend-item-text" style={{ color: entry.color }}>{entry.value}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          );
+                        }}
+                      />
                       <Bar dataKey="Low ESCS (Q1)" fill="#ef4444" radius={[4, 4, 0, 0]} />
                       <Bar dataKey="High ESCS (Q4)" fill="#22c55e" radius={[4, 4, 0, 0]} />
                     </BarChart>
@@ -331,7 +356,7 @@ export function SocioeconomicChart({
 
                 {/* Stats Summary - Resource Gap */}
                 <div className="flex gap-3 justify-center flex-wrap">
-                  {selectedCountryData.map((countryData: any) => {
+                  {selectedCountryData.map((countryData) => {
                     const gap = (countryData?.highESCSMath ?? 0) - (countryData?.lowESCSMath ?? 0);
                     return (
                       <div

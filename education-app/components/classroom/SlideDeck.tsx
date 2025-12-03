@@ -5,6 +5,7 @@ import Papa from 'papaparse';
 import { useSwipeable } from 'react-swipeable';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 
 interface CountryCard {
   country: string;
@@ -35,15 +36,23 @@ export function SlideDeck() {
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
-        const data = (results.data as any[])
+        const data = (results.data as Array<{
+          country?: string;
+          ranking?: string;
+          fact1?: string;
+          fact2?: string;
+          fact3?: string;
+        }>)
           .map((row) => ({
-            country: row.country,
+            country: row.country || '',
             ranking: Number(row.ranking),
-            fact1: row.fact1,
-            fact2: row.fact2,
-            fact3: row.fact3,
+            fact1: row.fact1 || '',
+            fact2: row.fact2 || '',
+            fact3: row.fact3 || '',
           }))
-          .filter((card) => card.country && !isNaN(card.ranking))
+          .filter((card): card is CountryCard => 
+            card.country !== '' && !isNaN(card.ranking) && card.ranking > 0
+          )
           .sort((a, b) => a.ranking - b.ranking); // 1..80
 
         setCards(data);
@@ -97,9 +106,18 @@ export function SlideDeck() {
   return (
     <div
       {...handlers}
-      className="w-full h-full flex flex-col items-center justify-center relative p-6"
+      className="w-full h-full flex flex-col relative p-6 font-patrick"
     >
+      {/* Header */}
+      <div className="mb-3 border-b-2 border-white/20 pb-2">
+        <h2 className="text-3xl text-chalk-white font-bold mb-2">Mathematical Ranking</h2>
+        <p className="text-base text-chalk-white/70 italic">
+          Math scores from a national exam ranked among 80 countries, and additional facts about each education system. Ex. 1/80 indicates the highest math score out of all 80 countries.
+        </p>
+      </div>
+
       {/* Card */}
+      <div className="flex-1 flex items-center justify-center">
       <AnimatePresence mode="wait">
         <motion.div
           key={index}
@@ -116,12 +134,14 @@ export function SlideDeck() {
         >
           {/* Country Flag - Top Right */}
           <div className="absolute top-4 right-4 w-16 h-16 rounded shadow-md overflow-hidden border border-black/10">
-            <img
+            <Image
               src={getCountryFlagPath(current.country)}
               alt={`${current.country} flag`}
+              width={64}
+              height={64}
               className="w-full h-full object-cover"
               onError={(e) => {
-                (e.target as HTMLImageElement).parentElement!.style.display = 'none';
+                (e.currentTarget.parentElement!.style.display = 'none');
               }}
             />
           </div>
@@ -146,7 +166,7 @@ export function SlideDeck() {
                 fontFamily: 'var(--font-patrick), "Patrick Hand", "Comic Sans MS", cursive',
               }}
             >
-              Math Rank: <span className="font-bold text-black">{current.ranking}/80</span>
+              <span className="text-2xl font-bold text-black">Math Rank:</span> <span className="font-bold text-black bg-chalk-yellow px-2 py-1 rounded">{current.ranking}/80</span>
             </div>
           </div>
 
@@ -200,6 +220,7 @@ export function SlideDeck() {
           </div>
         </motion.div>
       </AnimatePresence>
+      </div>
 
       {/* Left arrow */}
       <button

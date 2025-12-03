@@ -154,14 +154,20 @@ function HandwrittenParagraph({ text, onComplete, duration = 1 }: { text: string
       setVisibleChars(prev => {
         if (prev >= totalChars) {
           clearInterval(interval);
-          onComplete?.();
           return prev;
         }
         return prev + 1;
       });
     }, charDelay);
     return () => clearInterval(interval);
-  }, [totalChars, duration, onComplete]);
+  }, [totalChars, duration]);
+
+  // Call onComplete when animation finishes
+  useEffect(() => {
+    if (visibleChars >= totalChars && totalChars > 0) {
+      onComplete?.();
+    }
+  }, [visibleChars, totalChars, onComplete]);
 
   let charIndex = 0;
 
