@@ -4,9 +4,9 @@ import path from 'path';
 import { OpinionSubmission } from '@/lib/types';
 import Papa from 'papaparse';
 
-// Path adjusted to go up one level from 'education-app' into 'data-analysis/data'
+// Path to opinions.csv in the public folder
 // process.cwd() is the root of the next.js app (education-app)
-const DATA_FILE_PATH = path.join(process.cwd(), '..', 'data-analysis', 'data', 'opinions.csv');
+const DATA_FILE_PATH = path.join(process.cwd(), 'public', 'opinions.csv');
 
 // Helper to ensure CSV exists with headers
 function ensureFile() {
