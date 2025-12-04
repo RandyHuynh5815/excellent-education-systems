@@ -1,114 +1,122 @@
-'use client';
+"use client";
 
-import { useState, useMemo, useEffect } from 'react';
-import { CountryCard } from './CountryCard';
-import { COUNTRY_STATS, getRankedCountries, CountryId } from '@/lib/countryReportData';
-import { Button } from '@/components/ui/Button';
-import { Check, X } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
-import { OpinionSubmission } from '@/lib/types';
+// import { useState, useMemo, useEffect } from 'react';
+import { CountryCard } from "./CountryCard";
+import { COUNTRY_STATS } from "@/lib/countryReportData";
+// import { getRankedCountries, CountryId } from '@/lib/countryReportData';
+// import { Button } from '@/components/ui/Button';
+// import { Check, X } from 'lucide-react';
+// import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
+// import { OpinionSubmission } from '@/lib/types';
 
 export default function CountryEducationReportCards() {
-  const [bestGuess, setBestGuess] = useState<string>("");
-  const [lowestGuess, setLowestGuess] = useState<string>("");
-  const [submitted, setSubmitted] = useState(false);
-  const [submissions, setSubmissions] = useState<OpinionSubmission[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // COMMENTED OUT: Opinion submission feature - requires database implementation for production
+  // const [bestGuess, setBestGuess] = useState<string>("");
+  // const [lowestGuess, setLowestGuess] = useState<string>("");
+  // const [submitted, setSubmitted] = useState(false);
+  // const [submissions, setSubmissions] = useState<OpinionSubmission[]>([]);
+  // const [isLoading, setIsLoading] = useState(true);
 
-  const { best, lowest } = useMemo(() => getRankedCountries(), []);
+  // const { best, lowest } = useMemo(() => getRankedCountries(), []);
 
-  // Fetch all submissions on load
-  useEffect(() => {
-    fetchVotes();
-  }, []);
+  // // Fetch all submissions on load
+  // useEffect(() => {
+  //   fetchVotes();
+  // }, []);
 
-  const fetchVotes = async () => {
-    try {
-      const res = await fetch('/api/opinions');
-      if (res.ok) {
-        const data = await res.json();
-        setSubmissions(data || []);
-      }
-    } catch (error) {
-      console.error('Failed to fetch votes', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // const fetchVotes = async () => {
+  //   try {
+  //     const res = await fetch('/api/opinions');
+  //     if (res.ok) {
+  //       const data = await res.json();
+  //       setSubmissions(data || []);
+  //     }
+  //   } catch (error) {
+  //     console.error('Failed to fetch votes', error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
-  const handleSubmit = async () => {
-    if (bestGuess && lowestGuess && bestGuess !== lowestGuess) {
-      try {
-        const res = await fetch('/api/opinions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ bestCountry: bestGuess, worstCountry: lowestGuess }),
-        });
+  // const handleSubmit = async () => {
+  //   if (bestGuess && lowestGuess && bestGuess !== lowestGuess) {
+  //     try {
+  //       const res = await fetch('/api/opinions', {
+  //         method: 'POST',
+  //         headers: { 'Content-Type': 'application/json' },
+  //         body: JSON.stringify({ bestCountry: bestGuess, worstCountry: lowestGuess }),
+  //       });
 
-        if (res.ok) {
-          setSubmitted(true);
-          await fetchVotes(); // Refresh data
-          
-          // Scroll to feedback
-          setTimeout(() => {
-            document.getElementById('feedback-section')?.scrollIntoView({ behavior: 'smooth' });
-          }, 100);
-        }
-      } catch (error) {
-        console.error('Failed to submit vote', error);
-      }
-    }
-  };
+  //       if (res.ok) {
+  //         setSubmitted(true);
+  //         await fetchVotes(); // Refresh data
 
-  const isCorrectBest = bestGuess === best.id;
-  const isCorrectLowest = lowestGuess === lowest.id;
-  const isAllCorrect = isCorrectBest && isCorrectLowest;
+  //         // Scroll to feedback
+  //         setTimeout(() => {
+  //           document.getElementById('feedback-section')?.scrollIntoView({ behavior: 'smooth' });
+  //         }, 100);
+  //       }
+  //     } catch (error) {
+  //       console.error('Failed to submit vote', error);
+  //     }
+  //   }
+  // };
 
-  // Aggregate votes from actual submissions
-  const chartData = useMemo(() => {
-    const counts: Record<string, { best: number, lowest: number }> = {};
-    
-    // Initialize
-    COUNTRY_STATS.forEach(c => {
-      counts[c.id] = { best: 0, lowest: 0 };
-    });
+  // const isCorrectBest = bestGuess === best.id;
+  // const isCorrectLowest = lowestGuess === lowest.id;
+  // const isAllCorrect = isCorrectBest && isCorrectLowest;
 
-    // Tally
-    submissions.forEach(sub => {
-      if (counts[sub.bestCountry]) counts[sub.bestCountry].best++;
-      if (counts[sub.worstCountry]) counts[sub.worstCountry].lowest++;
-    });
+  // // Aggregate votes from actual submissions
+  // const chartData = useMemo(() => {
+  //   const counts: Record<string, { best: number, lowest: number }> = {};
 
-    return COUNTRY_STATS.map(c => ({
-      name: c.name,
-      bestVotes: counts[c.id]?.best || 0,
-      lowestVotes: counts[c.id]?.lowest || 0,
-    }));
-  }, [submissions]);
+  //   // Initialize
+  //   COUNTRY_STATS.forEach(c => {
+  //     counts[c.id] = { best: 0, lowest: 0 };
+  //   });
+
+  //   // Tally
+  //   submissions.forEach(sub => {
+  //     if (counts[sub.bestCountry]) counts[sub.bestCountry].best++;
+  //     if (counts[sub.worstCountry]) counts[sub.worstCountry].lowest++;
+  //   });
+
+  //   return COUNTRY_STATS.map(c => ({
+  //     name: c.name,
+  //     bestVotes: counts[c.id]?.best || 0,
+  //     lowestVotes: counts[c.id]?.lowest || 0,
+  //   }));
+  // }, [submissions]);
 
   return (
-    <div className="max-w-7xl mx-auto p-8 text-chalk-white" style={{ fontFamily: '"Patrick Hand", "Comic Sans MS", cursive', fontSize: '1.25rem' }}>
+    <div
+      className="max-w-7xl mx-auto p-8 text-chalk-white"
+      style={{
+        fontFamily: '"Patrick Hand", "Comic Sans MS", cursive',
+        fontSize: "1.25rem",
+      }}
+    >
       {/* Header */}
       <div className="text-center mb-12">
         <h1 className="text-6xl text-chalk-yellow mb-4">
           Global Education Report Cards
         </h1>
         <p className="text-2xl max-w-3xl mx-auto text-chalk-white/80">
-          Explore the report cards below. Based on the data, which country do you think has the 
-          <span className="font-bold text-chalk-blue"> strongest</span> and 
-          <span className="font-bold text-chalk-red"> weakest</span> overall education profile?
+          Explore the report cards below to compare education systems across
+          different countries.
         </p>
       </div>
 
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-        {COUNTRY_STATS.map(country => (
+        {COUNTRY_STATS.map((country) => (
           <CountryCard key={country.id} country={country} />
         ))}
       </div>
 
+      {/* COMMENTED OUT: Opinion submission feature - requires database implementation for production */}
       {/* Guessing Section */}
-      <div className="bg-black/20 backdrop-blur-sm border-2 border-white/10 rounded-xl p-8 max-w-4xl mx-auto">
+      {/* <div className="bg-black/20 backdrop-blur-sm border-2 border-white/10 rounded-xl p-8 max-w-4xl mx-auto">
         <h2 className="text-4xl text-center mb-8">
           Your Opinion: Who is Best and Lowest?
         </h2>
@@ -167,13 +175,12 @@ export default function CountryEducationReportCards() {
             {submitted ? 'Opinion Submitted' : 'Submit Opinion'}
           </Button>
         </div>
-      </div>
+      </div> */}
 
       {/* Community Votes Section */}
-      {submitted && (
+      {/* {submitted && (
         <div id="feedback-section" className="mt-12 space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
           
-          {/* Community Votes Chart */}
           <div className="max-w-5xl mx-auto bg-[#1a261d] p-8 rounded-xl border-2 border-white/10 shadow-2xl">
             <h3 className="text-4xl text-center mb-8 text-chalk-white">
               Community Consensus
@@ -182,7 +189,6 @@ export default function CountryEducationReportCards() {
               See how others voted for Best and Lowest systems ({submissions.length} votes).
             </p>
             
-            {/* Chart */}
             <div className="h-[400px] w-full mb-12">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
@@ -199,7 +205,6 @@ export default function CountryEducationReportCards() {
               </ResponsiveContainer>
             </div>
 
-            {/* Votes Table */}
             <div className="overflow-x-auto">
               <h4 className="text-3xl mb-4 text-chalk-white/80">All Votes So Far</h4>
               <table className="w-full text-left border-collapse text-xl">
@@ -240,9 +245,7 @@ export default function CountryEducationReportCards() {
             </div>
           </div>
         </div>
-      )}
-
-      {/* Previously "All Votes Table & Chart" section was here, moved inside submitted condition above */}
+      )} */}
     </div>
   );
 }
