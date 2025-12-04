@@ -410,7 +410,7 @@ export function HistogramChart({
                         style={{
                           fontWeight: "bold",
                           marginBottom: "8px",
-                          fontSize: "14px",
+                          fontSize: "20px",
                         }}
                       >
                         {label}
@@ -430,7 +430,7 @@ export function HistogramChart({
                             style={{
                               color: metricColor,
                               margin: "4px 0",
-                              fontSize: "12px",
+                              fontSize: "18px",
                             }}
                           >
                             <span style={{ fontWeight: "bold" }}>
