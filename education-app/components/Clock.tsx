@@ -297,35 +297,12 @@ export default function Clock({
               height: size * 0.35,
             }}
           >
-            <div className="text-center px-2">
+            <div className="text-center">
               <div
-                className="font-bold text-chalk-white mb-1"
-                style={{ fontSize: `${size * 0.08}px` }}
+                className="font-bold text-chalk-white"
+                style={{ fontSize: `${size * 0.12}px` }}
               >
                 {totalEducationHours.toFixed(1)}h
-              </div>
-              <div
-                className="text-chalk-white/70 mb-1"
-                style={{ fontSize: `${size * 0.035}px` }}
-              >
-                {percentage}% of day
-              </div>
-              <div
-                className="leading-tight text-chalk-white/60"
-                style={{ fontSize: `${size * 0.028}px` }}
-              >
-                {schoolSessions.map((session, index) => (
-                  <div key={index}>
-                    {Math.floor(session.start)}:00 - {Math.floor(session.end)}
-                    :00
-                  </div>
-                ))}
-                {actualCramHours > 0 && (
-                  <div>
-                    Cram: {Math.floor(normalizedCramStartTime)}:00 -{" "}
-                    {Math.floor(normalizedCramEndTime)}:00
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -335,7 +312,7 @@ export default function Clock({
       {/* Legend */}
       <div
         className="mt-4 flex flex-wrap items-center justify-center gap-4"
-        style={{ fontSize: `${size * 0.07}px` }}
+        style={{ fontSize: `${size * 0.1}px` }}
       >
         <div className="flex items-center gap-2">
           <div
@@ -361,17 +338,6 @@ export default function Clock({
             <span className="text-chalk-white">Cram School</span>
           </div>
         )}
-        <div className="flex items-center gap-2">
-          <div
-            className="rounded-full"
-            style={{
-              width: `${size * 0.013}px`,
-              height: `${size * 0.013}px`,
-              backgroundColor: "#2d3e30",
-            }}
-          />
-          <span className="text-chalk-white">Other Hours</span>
-        </div>
       </div>
     </div>
   );
