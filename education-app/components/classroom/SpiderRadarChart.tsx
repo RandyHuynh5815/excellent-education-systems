@@ -93,6 +93,7 @@ export function SpiderRadarChart({
   title = "Country Comparison",
   description = "Compare 6 country characteristics (Education spending, Obesity Rate, Internet Usage, Democracy Index, Average IQ, GDP per Capita) to better understand fundamental country systems.",
 }: SpiderRadarChartProps) {
+  const [mounted, setMounted] = useState(false);
   const [statColumns, setStatColumns] = useState<string[]>([]);
   const [dataByCountry, setDataByCountry] = useState<
     Record<string, Record<string, number | null>>
@@ -106,6 +107,11 @@ export function SpiderRadarChart({
   const prevSelectedRef = useRef<string[]>([]);
   const animationFrameRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Ensure component only renders on client to avoid hydration errors
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Load CSV on mount
   useEffect(() => {
@@ -154,6 +160,10 @@ export function SpiderRadarChart({
 
   // Initialize / update Chart.js radar chart when data or selection changes
   useEffect(() => {
+    // Only initialize on client side after mount
+    if (!mounted) {
+      return;
+    }
     // Need canvas and stat columns to proceed
     if (!chartRef.current || !statColumns.length) {
       return;
@@ -372,10 +382,13 @@ export function SpiderRadarChart({
         animationFrameRef.current = null;
       }
     };
-  }, [statColumns, dataByCountry, selectedCountries]);
+  }, [mounted, statColumns, dataByCountry, selectedCountries]);
 
   // Handle mouse move to detect label hover
   useEffect(() => {
+    if (!mounted) {
+      return;
+    }
     const canvas = chartRef.current;
     if (!canvas || !chartInstanceRef.current || statColumns.length === 0)
       return;
@@ -459,7 +472,7 @@ export function SpiderRadarChart({
       canvas.removeEventListener("mousemove", handleMouseMove);
       canvas.removeEventListener("mouseleave", handleMouseLeave);
     };
-  }, [statColumns]);
+  }, [mounted, statColumns]);
 
   // Cleanup chart on unmount
   useEffect(() => {
@@ -584,7 +597,7 @@ export function SpiderRadarChart({
             style={{ maxHeight: "calc(100vh - 200px)" }}
           >
             <div className="relative" style={{ height: "600px" }}>
-              <canvas ref={chartRef} className="w-full h-full" />
+              {mounted && <canvas ref={chartRef} className="w-full h-full" />}
               {/* Placeholder text when no countries selected */}
               {selectedCountries.length === 0 && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
