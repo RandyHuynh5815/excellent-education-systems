@@ -47,7 +47,7 @@ export const METRIC_DESCRIPTIONS: Record<
   BULLIED: {
     name: "Bullied",
     description:
-      "High values indicate an average student experienced less bullying at school. Low values indicate that they experienced more bullying.",
+      "High values indicate an average student experienced more bullying at school. Low values indicate that they experienced less bullying.",
     color: "#ef9a9a", // chalk-red
   },
   FEELSAFE: {
@@ -170,7 +170,7 @@ export function HistogramChart({
       return {
         country: country.country,
         BELONG: country.BELONG,
-        BULLIED: country.BULLIED != null ? -country.BULLIED : null,
+        BULLIED: country.BULLIED,
         FEELSAFE: country.FEELSAFE,
       };
     });
